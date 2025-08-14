@@ -6,6 +6,7 @@ description: Technical stack and design principles for Stack Guide architecture 
 # Architecture & Runtime Stack
 
 ## Core Technology Stack
+- **Primary Language**: Python 3.9+ for backend services and data processing
 - **LLM**: gpt-oss-20b (local via vLLM) by default, upgradeable to gpt-oss-120b for team GPU servers
 - **API**: FastAPI with stateless design
 - **Vector DB**: Chroma (file-backed)
