@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend (Development)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./data:/data
+      - ./models:/models
+      - ./requirements.txt:/app/requirements.txt
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - VLLM_HOST=vllm
+      - VLLM_PORT=8001
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    depends_on:
+      - chroma
+      - vllm
+    networks:
+      - stackguide
+    command: ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app"]
+
+  # Chroma Vector Database
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./data/chroma:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=/chroma/chroma/.chroma/chroma_authn.htpasswd
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_PROVIDER=chromadb.auth.providers.HtpasswdFileServerAuthProvider
+      - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.providers.HtpasswdFileServerAuthProvider
+    networks:
+      - stackguide
+
+  # vLLM Service for gpt-oss (Development)
+  vllm:
+    build:
+      context: .
+      dockerfile: Dockerfile.vllm
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./models:/models
+      - ./data:/data
+      - ./docker:/app/docker
+    environment:
+      - MODEL_NAME=gpt-oss-20b
+      - MAX_MODEL_LEN=8192
+      - GPU_MEMORY_UTILIZATION=0.9
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - stackguide
+
+
+
+networks:
+  stackguide:
+    driver: bridge
+
+volumes:
+  chroma_data:
+    driver: local
