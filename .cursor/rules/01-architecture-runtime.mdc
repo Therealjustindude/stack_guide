@@ -1,3 +1,8 @@
+---
+globs: *.py,*.js,*.ts,*.jsx,*.tsx,*.yaml,*.yml,*.toml,*.md
+description: Technical stack and design principles for Stack Guide architecture including FastAPI, Chroma DB, and local LLM integration
+---
+
 # Architecture & Runtime Stack
 
 ## Core Technology Stack
@@ -18,7 +23,3 @@
 - Store configuration in external files, not in code
 - Use dependency injection for connector plugins
 - Implement proper error handling and logging
-description:
-globs:
-alwaysApply: false
----

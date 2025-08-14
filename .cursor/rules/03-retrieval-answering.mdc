@@ -1,3 +1,8 @@
+---
+globs: *.py,*.js,*.ts,*.jsx,*.tsx
+description: RAG pipeline implementation for Stack Guide including hybrid search, re-ranking, and response generation
+---
+
 # Retrieval & Answering Pipeline
 
 ## RAG Pipeline Components
@@ -21,7 +26,3 @@
 - Use structured prompts for consistent response formats
 - Implement fallback strategies when retrieval fails
 - Track response quality and user feedback
-description:
-globs:
-alwaysApply: false
----

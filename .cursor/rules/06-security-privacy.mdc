@@ -1,3 +1,8 @@
+---
+globs: *.py,*.js,*.ts,*.yaml,*.yml,*.toml,*.md
+description: Security and privacy guidelines for Stack Guide including local-first architecture and sensitive data handling
+---
+
 # Security & Privacy
 
 ## Local-First Architecture
@@ -23,7 +28,3 @@
 - Provide clear warnings about data handling
 - Support user-defined exclusion patterns
 - Log security events for monitoring
-description:
-globs:
-alwaysApply: false
----

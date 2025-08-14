@@ -1,3 +1,8 @@
+---
+globs: *.py,*.js,*.ts,*.yaml,*.yml,*.toml
+description: Performance targets and quality standards for Stack Guide including caching strategies and quality assurance
+---
+
 # Performance & Quality Standards
 
 ## Performance Targets
@@ -24,7 +29,3 @@
 - Monitor cache hit rates and performance metrics
 - Implement A/B testing for response quality
 - Regular quality audits and improvements
-description:
-globs:
-alwaysApply: false
----

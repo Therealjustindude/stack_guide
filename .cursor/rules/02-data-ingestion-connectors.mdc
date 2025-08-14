@@ -1,3 +1,8 @@
+---
+globs: *.py,*.yaml,*.yml,*.toml,*.md
+description: Data collection and processing strategies for Stack Guide including local files, Git repos, and cloud connectors
+---
+
 # Data Ingestion & Connectors
 
 ## Phase 1 Data Sources
@@ -20,7 +25,3 @@
 - Trigger recrawls on file changes or manual requests
 - Use async processing for large repositories
 - Implement retry logic for failed ingestion attempts
-description:
-globs:
-alwaysApply: false
----

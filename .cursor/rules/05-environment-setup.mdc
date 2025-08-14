@@ -1,3 +1,8 @@
+---
+globs: *.py,*.sh,*.yaml,*.yml,*.toml,Makefile,Dockerfile
+description: Launch and configuration guidelines for Stack Guide including one-command setup and offline-first operation
+---
+
 # Environment & Setup
 
 ## One-Command Launch
@@ -25,7 +30,3 @@
 - Implement health check endpoints for all services
 - Provide clear error messages for configuration issues
 - Support multiple environment profiles (dev, staging, prod)
-description:
-globs:
-alwaysApply: false
----

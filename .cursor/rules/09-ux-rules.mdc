@@ -1,3 +1,8 @@
+---
+globs: *.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.html
+description: User interface and experience guidelines for Stack Guide including response requirements and UI elements
+---
+
 # User Experience Rules
 
 ## Response Requirements
@@ -24,7 +29,3 @@
 - Provide keyboard shortcuts for power users
 - Include accessibility features (ARIA labels, screen reader support)
 - Test user flows with real team members
-description:
-globs:
-alwaysApply: false
----

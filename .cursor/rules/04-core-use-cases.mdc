@@ -1,3 +1,8 @@
+---
+alwaysApply: true
+description: Primary usage scenarios and success metrics for Stack Guide including onboarding, feature research, and troubleshooting
+---
+
 # Core Use Cases
 
 ## Primary Scenarios
@@ -32,7 +37,3 @@
 - Faster feature development cycles
 - Improved incident response times
 - Better knowledge retention across team changes
-description:
-globs:
-alwaysApply: false
----

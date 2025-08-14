@@ -1,3 +1,8 @@
+---
+globs: *.py,*.yaml,*.yml,*.toml,*.md
+description: Scaling strategies for team usage including shared infrastructure and role-based access control
+---
+
 # Future Team Mode
 
 ## Shared Infrastructure
@@ -25,7 +30,3 @@
 - Provide team management dashboard
 - Support multiple project indexes
 - Implement team collaboration features
-description:
-globs:
-alwaysApply: false
----

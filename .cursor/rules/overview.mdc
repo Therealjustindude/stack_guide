@@ -1,3 +1,8 @@
+---
+alwaysApply: true
+description: Complete rules overview and navigation for Stack Guide project with links to all technical and operational guidelines
+---
+
 # Stack Guide - Complete Rules Overview
 
 ## Project Summary
@@ -30,7 +35,3 @@ Stack Guide is a local-first, AI-powered knowledge assistant that provides insta
 ## Quick Start Commands
 - `stackguide dev` or `make dev` - Launch development environment
 - All services start locally: API, UI, Chroma DB, gpt-oss model
-description:
-globs:
-alwaysApply: false
----

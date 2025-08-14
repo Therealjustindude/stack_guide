@@ -1,3 +1,8 @@
+---
+alwaysApply: true
+description: Core mission, scope, and principles for Stack Guide - a local-first AI knowledge assistant
+---
+
 # Stack Guide - Product North Star
 
 ## Core Mission
@@ -21,7 +26,3 @@ Stack Guide provides instant, accurate answers to questions about a product, its
 - Local-first architecture for privacy and offline capability
 - Extensible connector system for various data sources
 - Stateless design for reliability and scalability
-description:
-globs:
-alwaysApply: false
----

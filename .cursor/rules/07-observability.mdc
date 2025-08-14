@@ -1,3 +1,8 @@
+---
+globs: *.py,*.js,*.ts,*.yaml,*.yml,*.toml
+description: Logging, metrics, and monitoring requirements for Stack Guide including structured logging and health endpoints
+---
+
 # Observability & Monitoring
 
 ## Structured Logging
@@ -24,7 +29,3 @@
 - Provide real-time dashboard for system status
 - Set up alerting for critical failures
 - Include request tracing for debugging
-description:
-globs:
-alwaysApply: false
----
