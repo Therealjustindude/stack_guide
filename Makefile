@@ -49,6 +49,7 @@ help:
 	@echo "💻 CLI & Queries:"
 	@echo "  cli             - Open interactive CLI"
 	@echo "  query           - Run specific query (requires Q= parameter)"
+	@echo "  search          - Search ingested documents (requires Q= parameter)"
 	@echo ""
 	@echo "🧪 Development Tools:"
 	@echo "  test            - Run tests"
@@ -56,6 +57,7 @@ help:
 	@echo "  format          - Format code"
 	@echo "  setup           - Initial setup and configuration"
 	@echo "  ingest          - Ingest data from local sources"
+	@echo "  search          - Search ingested documents"
 
 # Development environment with hot reloading (CPU mode by default)
 dev:
@@ -99,6 +101,11 @@ query:
 	@echo "🔍 Running StackGuide query..."
 	docker compose exec api python -m cli.main query "$(Q)"
 
+# Search ingested documents
+search:
+	@echo "🔍 Searching StackGuide documents..."
+	docker compose exec api python -m cli.main search "$(Q)"
+
 # Clean everything
 clean:
 	@echo "🧹 Cleaning up StackGuide..."
@@ -137,7 +144,7 @@ setup:
 # Data ingestion
 ingest:
 	@echo "📚 Ingesting data into StackGuide..."
-	docker-compose exec api python -m app.core.ingestion.main
+	docker compose exec api python -m cli.main ingest
 
 # Quick start - full setup and launch
 stackguide:

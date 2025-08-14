@@ -35,13 +35,14 @@ Examples:
     stackguide query "Where is the payment integration code?"
     stackguide interactive
     stackguide ingest
+    stackguide search "Docker configuration"
     stackguide status
         """
     )
     
     parser.add_argument(
         "command",
-        choices=["query", "interactive", "ingest", "status"],
+        choices=["query", "interactive", "ingest", "status", "search"],
         help="Command to execute"
     )
     
@@ -72,6 +73,11 @@ Examples:
             run_interactive()
         elif args.command == "ingest":
             run_ingestion()
+        elif args.command == "search":
+            if not args.query_text:
+                print("Error: Search query is required for 'search' command")
+                sys.exit(1)
+            run_search(args.query_text)
         elif args.command == "status":
             show_status()
     except KeyboardInterrupt:
@@ -127,12 +133,74 @@ def run_ingestion():
     """Run data ingestion process."""
     print("📚 Starting data ingestion...")
     
-    # TODO: Initialize DataIngestionEngine and run ingestion
-    # engine = DataIngestionEngine()
-    # engine.ingest_all()
+    try:
+        # Initialize ingestion engine
+        engine = DataIngestionEngine()
+        
+        # Add current directory as source
+        current_dir = Path.cwd()
+        if engine.add_source(str(current_dir), "local"):
+            print(f"✅ Added source: {current_dir}")
+        else:
+            print(f"❌ Failed to add source: {current_dir}")
+            return
+        
+        # Run ingestion
+        print("🔄 Processing documents...")
+        result = engine.ingest_all(force_reindex=True)
+        
+        print(f"✅ Ingestion complete!")
+        print(f"📁 Files processed: {result.files_processed}")
+        print(f"📄 Chunks created: {result.chunks_created}")
+        print(f"⏱️  Processing time: {result.processing_time:.2f}s")
+        
+        if result.errors:
+            print(f"⚠️  Errors: {len(result.errors)}")
+            for error in result.errors:
+                print(f"   - {error}")
+        
+        if result.sources_updated:
+            print(f"🔄 Sources updated: {len(result.sources_updated)}")
+            for source in result.sources_updated:
+                print(f"   - {source}")
+                
+    except Exception as e:
+        print(f"❌ Error during ingestion: {e}")
+        print("Make sure the StackGuide services are running with 'make dev'")
+
+
+def run_search(query_text: str):
+    """Search ingested documents."""
+    print(f"🔍 Searching for: {query_text}")
+    print("=" * 50)
     
-    print("Ingestion functionality coming soon!")
-    print("Make sure the StackGuide services are running with 'make dev'")
+    try:
+        # Initialize ingestion engine
+        engine = DataIngestionEngine()
+        
+        # Search for relevant chunks
+        results = engine.search_chunks(query_text, n_results=5)
+        
+        if not results:
+            print("❌ No results found")
+            print("Make sure you've run 'ingest' first to index documents")
+            return
+        
+        print(f"✅ Found {len(results)} relevant chunks:")
+        print()
+        
+        for i, result in enumerate(results, 1):
+            print(f"📄 Result {i}:")
+            print(f"   File: {result['metadata']['source_file']}")
+            print(f"   Section: {result['metadata']['section']}")
+            print(f"   Content: {result['content'][:200]}...")
+            if result.get('distance'):
+                print(f"   Relevance: {1 - result['distance']:.2f}")
+            print()
+            
+    except Exception as e:
+        print(f"❌ Error during search: {e}")
+        print("Make sure the StackGuide services are running with 'make dev'")
 
 
 def show_status():
