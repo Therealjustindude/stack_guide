@@ -35,10 +35,17 @@ help:
 	@echo "  setup           - Initial setup and configuration"
 	@echo "  ingest          - Ingest data from local sources"
 
-# Development environment with hot reloading
+# Development environment with hot reloading (CPU mode by default)
 dev:
-	@echo "🚀 Starting StackGuide development environment..."
-	docker compose -f docker-compose.dev.yml up --build
+	@echo "🚀 Starting StackGuide development environment (CPU mode)..."
+	docker compose -f docker-compose.dev.yml --profile cpu up --build
+
+
+
+# Development environment with GPU support
+dev-gpu:
+	@echo "🚀 Starting StackGuide development environment (GPU mode)..."
+	docker compose -f docker-compose.dev.yml --profile gpu up --build
 
 # Build all Docker images
 build:
@@ -63,12 +70,12 @@ logs:
 # CLI commands
 cli:
 	@echo "💻 Starting StackGuide CLI..."
-	docker compose exec api python -m app.cli.main
+	docker compose exec api python -m cli.main
 
 # Query via CLI
 query:
 	@echo "🔍 Running StackGuide query..."
-	docker compose exec api python -m app.cli.main query "$(Q)"
+	docker compose exec api python -m cli.main query "$(Q)"
 
 # Clean everything
 clean:

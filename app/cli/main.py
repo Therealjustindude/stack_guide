@@ -17,9 +17,9 @@ from typing import Optional
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.knowledge import KnowledgeEngine
-from app.core.ingestion import DataIngestionEngine
-from app.utils.logging import get_logger
+from core.knowledge import KnowledgeEngine
+from core.ingestion import DataIngestionEngine
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
