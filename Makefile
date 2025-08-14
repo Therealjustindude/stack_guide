@@ -17,6 +17,28 @@ help:
 	@echo "  dev-logs        - Start dev environment with logs"
 	@echo "  dev-monitor     - Start dev environment with monitoring"
 	@echo ""
+	@echo "🏥 Health Monitoring:"
+	@echo "  health          - Quick health overview"
+	@echo "  health-all      - Test all health endpoints"
+	@echo "  health-api      - Test API health"
+	@echo "  health-llm      - Test LLM service health"
+	@echo "  health-chroma   - Test Chroma DB health"
+	@echo "  status          - Show service status"
+	@echo "  stats           - Show resource usage"
+	@echo "  network         - Test inter-service connectivity"
+	@echo ""
+	@echo "📋 Logs & Debugging:"
+	@echo "  logs-api        - View API logs"
+	@echo "  logs-llm        - View LLM logs"
+	@echo "  logs-chroma     - View Chroma logs"
+	@echo "  logs-follow     - Follow all logs in real-time"
+	@echo ""
+	@echo "🔄 Service Management:"
+	@echo "  restart-api     - Restart API service"
+	@echo "  restart-llm     - Restart LLM service"
+	@echo "  restart-chroma  - Restart Chroma DB"
+	@echo "  restart-all     - Restart all services"
+	@echo ""
 	@echo "🔧 Core Commands:"
 	@echo "  build           - Build all Docker images"
 	@echo "  up              - Start production environment"
@@ -186,3 +208,82 @@ dev-monitor:
 	@docker compose ps
 	@echo "📋 Recent Logs:"
 	@make logs
+
+# Health monitoring commands
+health:
+	@echo "🏥 StackGuide Health Check"
+	@echo "=========================="
+	@echo "📊 Service Status:"
+	@docker compose ps
+	@echo ""
+	@echo "🔍 Health Endpoints:"
+	@echo "API Health: $(shell curl -s http://localhost:8000/health 2>/dev/null || echo "❌ API not responding")"
+	@echo "LLM Health: $(shell curl -s http://localhost:8001/health 2>/dev/null || echo "❌ LLM not responding")"
+	@echo "Chroma Health: $(shell curl -s http://localhost:8002/api/v2/heartbeat 2>/dev/null || echo "❌ Chroma not responding")"
+
+health-api:
+	@echo "🔍 Testing API Health..."
+	@curl -s http://localhost:8000/health || echo "❌ API not responding"
+
+health-llm:
+	@echo "🔍 Testing LLM Service Health..."
+	@curl -s http://localhost:8001/health || echo "❌ LLM not responding"
+
+health-chroma:
+	@echo "🔍 Testing Chroma DB Health..."
+	@curl -s http://localhost:8002/api/v2/heartbeat || echo "❌ Chroma not responding"
+
+health-all:
+	@echo "🏥 Full StackGuide Health Check"
+	@echo "=============================="
+	@make health-api
+	@make health-llm
+	@make health-chroma
+
+logs-api:
+	@echo "📋 API Service Logs:"
+	@docker compose logs api
+
+logs-llm:
+	@echo "📋 LLM Service Logs:"
+	@docker compose logs llm-cpu
+
+logs-chroma:
+	@echo "📋 Chroma DB Logs:"
+	@docker compose logs chroma
+
+logs-follow:
+	@echo "📋 Following all service logs (Ctrl+C to stop):"
+	@docker compose logs -f
+
+status:
+	@echo "📊 StackGuide Service Status:"
+	@docker compose ps
+
+stats:
+	@echo "📊 Container Resource Usage:"
+	@docker stats --no-stream
+
+network:
+	@echo "🌐 Network Configuration:"
+	@docker network ls | grep stackguide
+	@echo ""
+	@echo "🔗 Inter-service connectivity test:"
+	@docker compose exec api curl -s http://chroma:8000/api/v2/heartbeat 2>/dev/null && echo "✅ API → Chroma: Connected" || echo "❌ API → Chroma: Failed"
+	@docker compose exec api curl -s http://llm-cpu:8000/health 2>/dev/null && echo "✅ API → LLM: Connected" || echo "❌ API → LLM: Failed"
+
+restart-api:
+	@echo "🔄 Restarting API service..."
+	@docker compose restart api
+
+restart-llm:
+	@echo "🔄 Restarting LLM service..."
+	@docker compose restart llm-cpu
+
+restart-chroma:
+	@echo "🔄 Restarting Chroma DB..."
+	@docker compose restart chroma
+
+restart-all:
+	@echo "🔄 Restarting all services..."
+	@docker compose restart

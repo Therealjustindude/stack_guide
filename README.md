@@ -85,7 +85,7 @@ make query Q="How do I set up my development environment?"
 make quick-query Q="How do I set up my development environment?"
 
 # Or directly from the container
-docker compose exec api python -m app.cli.main query "Where is the payment integration code?"
+docker compose exec api python -m cli.main query "Where is the payment integration code?"
 ```
 
 ### Smart Development Workflows
@@ -116,6 +116,162 @@ make setup
 
 # Start development environment
 make dev
+```
+
+## 🔍 Health Monitoring & Troubleshooting
+
+### **Quick Health Commands**
+
+StackGuide provides simple Makefile commands for all your health monitoring needs:
+
+#### **1. Quick Health Overview**
+```bash
+# Get a complete health summary
+make health
+
+# Test all health endpoints
+make health-all
+
+# Individual service health checks
+make health-api      # Test API health
+make health-llm      # Test LLM service health
+make health-chroma   # Test Chroma DB health
+```
+
+#### **2. Service Status & Monitoring**
+```bash
+# View service status
+make status
+
+# Monitor resource usage
+make stats
+
+# Test inter-service connectivity
+make network
+```
+
+#### **3. Logs & Debugging**
+```bash
+# View logs for specific services
+make logs-api        # API service logs
+make logs-llm        # LLM service logs
+make logs-chroma     # Chroma DB logs
+
+# Follow all logs in real-time
+make logs-follow
+```
+
+#### **4. Service Management**
+```bash
+# Restart individual services
+make restart-api     # Restart API service
+make restart-llm     # Restart LLM service
+make restart-chroma  # Restart Chroma DB
+
+# Restart all services
+make restart-all
+```
+
+### **Manual Health Checks (Advanced)**
+
+If you prefer to run commands manually or need more detailed inspection:
+
+```bash
+# Service status
+docker compose ps
+
+# Health endpoints
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/api/v2/heartbeat
+
+# Container inspection
+docker compose exec api ls -la
+docker stats --no-stream
+
+# Network connectivity
+docker network ls | grep stackguide
+docker compose exec api curl http://chroma:8000/api/v2/heartbeat
+```
+
+### **Common Health Issues & Solutions**
+
+#### **Service Won't Start**
+```bash
+# Quick health check
+make health
+
+# Check if ports are already in use
+lsof -i :8000  # API port
+lsof -i :8001  # LLM port
+lsof -i :8002  # Chroma port
+
+# Restart services
+make dev-restart
+
+# Full rebuild if needed
+make dev-cycle
+```
+
+#### **Import Errors in API**
+```bash
+# Check API health
+make health-api
+
+# Check Python path in container
+docker compose exec api python -c "import sys; print(sys.path)"
+
+# Verify file structure
+docker compose exec api ls -la /app/
+docker compose exec api python -c "import api.main; print('Import successful')"
+```
+
+#### **LLM Service Issues**
+```bash
+# Check LLM service health
+make health-llm
+
+# View LLM service logs
+make logs-llm
+
+# Restart just the LLM service
+make restart-llm
+```
+
+#### **Chroma DB Issues**
+```bash
+# Check Chroma DB health
+make health-chroma
+
+# Check Chroma data directory
+ls -la data/chroma/
+
+# Reset Chroma data (if corrupted)
+rm -rf data/chroma/*
+make dev-restart
+```
+
+### **Development Environment Monitoring**
+
+#### **Real-time Monitoring**
+```bash
+# Start all services with monitoring
+make dev-monitor
+
+# This will show:
+# - Service status
+# - Resource usage
+# - Live logs
+# - Health check results
+```
+
+#### **Quick Health Summary**
+```bash
+# Get a quick overview of all services
+make health
+
+# Check if everything is ready
+make quick-query Q="test"
 ```
 
 ## 📁 Project Structure
