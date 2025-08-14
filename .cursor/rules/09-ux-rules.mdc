@@ -1,0 +1,30 @@
+# User Experience Rules
+
+## Response Requirements
+- **Concise answers**: Step-by-step instructions for procedural queries
+- **Clickable citations**: Direct links to source files and line ranges
+- **Copy-ready commands**: Commands that can be executed directly
+- **Context preservation**: Maintain source context in responses
+
+## User Interface Elements
+- **Feedback prompt**: "Was this helpful?" with rating system
+- **Fallback suggestions**: Alternative queries when no results found
+- **Progress indicators**: Show processing status for long operations
+- **Error handling**: Clear, actionable error messages
+
+## Navigation & Actions
+- **File opening**: Direct links to open files in editor
+- **Explorer integration**: Reveal files in file system
+- **Search history**: Track and suggest previous queries
+- **Bookmarking**: Save useful responses for later reference
+
+## Implementation Guidelines
+- Use consistent design patterns across all UI components
+- Implement responsive design for various screen sizes
+- Provide keyboard shortcuts for power users
+- Include accessibility features (ARIA labels, screen reader support)
+- Test user flows with real team members
+description:
+globs:
+alwaysApply: false
+---

@@ -1,0 +1,27 @@
+# Retrieval & Answering Pipeline
+
+## RAG Pipeline Components
+1. **Query Rewrite** (Optional): Enhance query understanding
+2. **Hybrid Search**: BM25 + vector similarity for comprehensive retrieval
+3. **Re-ranking**: Local reranker (bge-reranker) for result quality
+4. **Generation**: gpt-oss model, offline by default
+
+## Response Requirements
+- **Citations always**: Link to file paths, line ranges, or URLs
+- **Multiple modes**: How-To, Explain, Locate, Summarize, Explore
+- **Context preservation**: Maintain source context in responses
+
+## Safety & Guardrails
+- **No unverified commands**: Never execute code without verification
+- **Secrets handling**: Redact and reference where to find sensitive information
+- **Source validation**: Ensure retrieved information is from trusted sources
+
+## Implementation Guidelines
+- Implement caching for frequently accessed information
+- Use structured prompts for consistent response formats
+- Implement fallback strategies when retrieval fails
+- Track response quality and user feedback
+description:
+globs:
+alwaysApply: false
+---

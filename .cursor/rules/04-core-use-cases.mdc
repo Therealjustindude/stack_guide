@@ -1,0 +1,38 @@
+# Core Use Cases
+
+## Primary Scenarios
+
+### 1. Team Onboarding
+- **New team members**: Quick understanding of system architecture
+- **Role transitions**: Moving between development, QA, operations roles
+- **Project handoffs**: Understanding existing codebases and workflows
+
+### 2. Feature Research & Development
+- **New features**: Understanding requirements and existing implementations
+- **Legacy code**: Investigating how existing features work
+- **Integration points**: Finding APIs, data flows, and dependencies
+
+### 3. Troubleshooting & Debugging
+- **Error investigation**: Understanding error contexts and solutions
+- **Configuration issues**: Finding relevant settings and documentation
+- **Performance problems**: Identifying bottlenecks and optimization opportunities
+
+### 4. Environment & Testing Setup
+- **Development environments**: Local setup instructions and requirements
+- **Testing workflows**: Understanding test suites and validation processes
+- **Deployment procedures**: Staging and production configuration
+
+### 5. Documentation & Knowledge Discovery
+- **Architecture decisions**: Finding ADRs and design rationale
+- **API documentation**: Understanding endpoints and data structures
+- **Workflow processes**: Operational procedures and best practices
+
+## Success Metrics
+- Reduced time to first productive contribution
+- Faster feature development cycles
+- Improved incident response times
+- Better knowledge retention across team changes
+description:
+globs:
+alwaysApply: false
+---

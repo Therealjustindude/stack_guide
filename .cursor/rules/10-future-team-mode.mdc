@@ -1,0 +1,31 @@
+# Future Team Mode
+
+## Shared Infrastructure
+- **Deploy shared index**: Centralized knowledge base for team access
+- **GPU server deployment**: gpt-oss-120b for enhanced performance
+- **Multi-tenant support**: Separate indexes for different projects/teams
+- **Load balancing**: Distribute requests across multiple instances
+
+## Role-Based Access
+- **Developer role**: Full codebase access and development workflows
+- **QA role**: Testing procedures and validation workflows
+- **Design role**: UI/UX documentation and design systems
+- **Operations role**: Deployment, monitoring, and infrastructure
+- **Support role**: Customer-facing documentation and procedures
+
+## Privacy & Security (Team Mode)
+- **Same privacy rules**: Local-first principles maintained
+- **Citation requirements**: All responses include source references
+- **Access controls**: Role-based permissions for sensitive information
+- **Audit logging**: Track all team member interactions
+
+## Implementation Guidelines
+- Use Kubernetes or Docker Swarm for orchestration
+- Implement role-based access control (RBAC)
+- Provide team management dashboard
+- Support multiple project indexes
+- Implement team collaboration features
+description:
+globs:
+alwaysApply: false
+---

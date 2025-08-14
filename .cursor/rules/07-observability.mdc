@@ -1,0 +1,30 @@
+# Observability & Monitoring
+
+## Structured Logging
+- **JSON format**: Machine-readable logs with consistent structure
+- **Correlation IDs**: Track requests across all services
+- **Log levels**: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- **Context preservation**: Include relevant metadata with each log entry
+
+## Key Metrics
+- **Performance**: QPS, latency (P50, P95, P99), response times
+- **Quality**: Answer confidence scores, user feedback ratings
+- **Ingestion**: Processing times, success rates, file counts
+- **System**: Resource usage, error rates, health status
+
+## Health & Status Endpoints
+- **/health**: Basic service availability
+- **/stats**: Current performance and usage metrics
+- **/ingestion/status**: Data processing pipeline status
+- **/models**: Local model status and performance
+
+## Implementation Guidelines
+- Use structured logging libraries (structlog, winston)
+- Implement metrics collection with Prometheus or similar
+- Provide real-time dashboard for system status
+- Set up alerting for critical failures
+- Include request tracing for debugging
+description:
+globs:
+alwaysApply: false
+---

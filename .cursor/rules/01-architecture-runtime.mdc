@@ -1,0 +1,24 @@
+# Architecture & Runtime Stack
+
+## Core Technology Stack
+- **LLM**: gpt-oss-20b (local via vLLM) by default, upgradeable to gpt-oss-120b for team GPU servers
+- **API**: FastAPI with stateless design
+- **Vector DB**: Chroma (file-backed)
+- **Embeddings**: Local model (nomic-embed-text) or cloud embeddings if explicitly enabled
+- **UI**: Lightweight, browser-based (React, TanStack, or Svelte)
+
+## Design Principles
+- **Stateless by design**: Persist embeddings, indexes, and settings outside the API service
+- **Extensible architecture**: Pluggable connectors for various data sources
+- **Local-first**: All processing happens locally unless cloud is explicitly enabled
+- **Modular components**: Clear separation between ingestion, retrieval, and generation
+
+## File Structure Guidelines
+- Keep API endpoints stateless and idempotent
+- Store configuration in external files, not in code
+- Use dependency injection for connector plugins
+- Implement proper error handling and logging
+description:
+globs:
+alwaysApply: false
+---

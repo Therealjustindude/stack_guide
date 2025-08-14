@@ -1,0 +1,30 @@
+# Performance & Quality Standards
+
+## Performance Targets
+- **Response time**: P50 < 1.5s for common queries with cached retrieval
+- **Throughput**: Support concurrent users without degradation
+- **Resource usage**: Efficient memory and CPU utilization
+- **Scalability**: Linear performance scaling with resources
+
+## Caching Strategy
+- **Embedding cache**: Store computed embeddings for reuse
+- **Re-rank cache**: Cache re-ranking results for similar queries
+- **Response cache**: Cache common query responses
+- **Incremental updates**: Only reindex changed files
+
+## Quality Assurance
+- **Golden Q&A set**: Maintain test questions and expected answers
+- **Confidence scoring**: Rate answer quality and relevance
+- **User feedback**: Collect and analyze user satisfaction
+- **Continuous improvement**: Regular model and prompt updates
+
+## Implementation Guidelines
+- Implement Redis or similar for caching
+- Use async processing for non-blocking operations
+- Monitor cache hit rates and performance metrics
+- Implement A/B testing for response quality
+- Regular quality audits and improvements
+description:
+globs:
+alwaysApply: false
+---

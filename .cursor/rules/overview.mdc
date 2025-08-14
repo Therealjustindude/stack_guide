@@ -1,0 +1,36 @@
+# Stack Guide - Complete Rules Overview
+
+## Project Summary
+Stack Guide is a local-first, AI-powered knowledge assistant that provides instant answers about codebases, architecture, and workflows using open-source models and local vector databases.
+
+## Rule Categories
+
+### Core Rules (Always Applied)
+- [Product North Star](mdc:.cursor/rules/00-product-north-star.mdc) - Mission, scope, and principles
+- [Core Use Cases](mdc:.cursor/rules/04-core-use-cases.mdc) - Primary usage scenarios
+
+### Technical Implementation Rules
+- [Architecture & Runtime](mdc:.cursor/rules/01-architecture-runtime.mdc) - Tech stack and design principles
+- [Data Ingestion & Connectors](mdc:.cursor/rules/02-data-ingestion-connectors.mdc) - Data collection and processing
+- [Retrieval & Answering](mdc:.cursor/rules/03-retrieval-answering.mdc) - RAG pipeline and response generation
+- [Environment & Setup](mdc:.cursor/rules/05-environment-setup.mdc) - Launch and configuration
+- [Security & Privacy](mdc:.cursor/rules/06-security-privacy.mdc) - Data handling and protection
+- [Observability](mdc:.cursor/rules/07-observability.mdc) - Logging, metrics, and monitoring
+- [Performance & Quality](mdc:.cursor/rules/08-performance-quality.mdc) - Performance targets and quality standards
+- [UX Rules](mdc:.cursor/rules/09-ux-rules.mdc) - User interface and experience guidelines
+- [Future Team Mode](mdc:.cursor/rules/10-future-team-mode.mdc) - Scaling for team usage
+
+## Key Principles
+1. **Local-first**: All processing happens locally by default
+2. **Privacy-focused**: No data sent to external services unless explicitly enabled
+3. **Citation-required**: All answers must include source references
+4. **Stateless design**: Reliable and scalable architecture
+5. **Extensible**: Pluggable connectors for various data sources
+
+## Quick Start Commands
+- `stackguide dev` or `make dev` - Launch development environment
+- All services start locally: API, UI, Chroma DB, gpt-oss model
+description:
+globs:
+alwaysApply: false
+---

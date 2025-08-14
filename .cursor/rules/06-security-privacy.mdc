@@ -1,0 +1,29 @@
+# Security & Privacy
+
+## Local-First Architecture
+- **gpt-oss runs locally**: No data sent to external LLM services by default
+- **Local embeddings**: All vector embeddings stored on local machine
+- **Offline processing**: Complete functionality without internet connection
+
+## Cloud Connector Security
+- **Explicit enablement**: Cloud features require user opt-in
+- **Scoped tokens**: Minimal permissions for required functionality
+- **Secure storage**: Encrypted storage of API keys and tokens
+- **Audit logging**: Track all cloud connector usage
+
+## Secrets & Sensitive Data Handling
+- **Detection**: Automatically identify sensitive files and content
+- **Redaction**: Remove secrets from both ingestion and responses
+- **Reference preservation**: Point users to where secrets can be found
+- **Default exclusions**: .env, .pem, .key, credentials files
+
+## Implementation Guidelines
+- Use environment variables for configuration
+- Implement file scanning for sensitive patterns
+- Provide clear warnings about data handling
+- Support user-defined exclusion patterns
+- Log security events for monitoring
+description:
+globs:
+alwaysApply: false
+---

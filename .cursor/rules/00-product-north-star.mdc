@@ -1,0 +1,27 @@
+# Stack Guide - Product North Star
+
+## Core Mission
+Stack Guide provides instant, accurate answers to questions about a product, its codebase, architecture, environments, and workflows.
+
+## Scope & Applicability
+- **Onboarding**: New team members can quickly understand the system
+- **Feature Research**: Investigate existing or new features
+- **Troubleshooting**: Debug issues with architecture or configuration
+- **Testing**: Set up environments and understand test workflows
+- **Environment Setup**: Configure development, staging, and production environments
+
+## Default Operating Mode
+- **Local-first**: Runs with open-weight AI model (gpt-oss) and local vector database
+- **Offline functionality**: Core features work without internet connection
+- **Cloud optional**: Cloud connectors and cloud LLMs available when explicitly enabled
+- **Privacy-focused**: All data processing happens locally by default
+
+## Key Principles
+- Instant answers with accurate citations
+- Local-first architecture for privacy and offline capability
+- Extensible connector system for various data sources
+- Stateless design for reliability and scalability
+description:
+globs:
+alwaysApply: false
+---

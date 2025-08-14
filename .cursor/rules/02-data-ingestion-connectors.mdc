@@ -1,0 +1,26 @@
+# Data Ingestion & Connectors
+
+## Phase 1 Data Sources
+- **Local folders**: docs, READMEs, ADRs, API specs, code files
+- **Git repositories**: Current repository + linked repositories
+- **Optional cloud sources**: Confluence, Google Drive via secure tokens
+
+## Chunking Strategy
+- **Semantic chunking**: Use max token windows for optimal retrieval
+- **Metadata preservation**: File path, line range, section information
+- **Context awareness**: Maintain relationships between chunks
+
+## Security & Privacy
+- **Default exclusions**: Ignore .env, credentials, and other sensitive files
+- **Token handling**: Secure storage and redaction of sensitive information
+- **Access control**: Scoped permissions for cloud connectors
+
+## Implementation Guidelines
+- Implement incremental reindexing for changed files
+- Trigger recrawls on file changes or manual requests
+- Use async processing for large repositories
+- Implement retry logic for failed ingestion attempts
+description:
+globs:
+alwaysApply: false
+---
