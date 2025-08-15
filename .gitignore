@@ -32,6 +32,9 @@ ENV/
 .env.local
 .env.*.local
 
+# User configuration files
+config/sources.json
+
 # IDE
 .vscode/
 .idea/

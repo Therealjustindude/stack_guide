@@ -58,7 +58,8 @@ source ~/.zshrc  # or source ~/.bash_profile
 # Create and customize environment configuration
 nano .env  # Set HOST_DOCS_PATH to your documents location
 
-# Create and customize sources configuration
+# Copy and customize sources configuration
+cp config/sources.json.template config/sources.json
 nano config/sources.json  # Add your document sources
 ```
 
@@ -158,7 +159,10 @@ HOST_DOCS_PATH=/Volumes/External/Project-Documentation
 
 ### **Sources Configuration:**
 ```bash
-# Create and edit your sources configuration
+# Copy the template and customize it
+cp config/sources.json.template config/sources.json
+
+# Edit to add your document sources
 nano config/sources.json
 ```
 
@@ -355,8 +359,10 @@ stackguide> status
 
 ### **Configuration Files:**
 - **`.env`** - Environment variables (create this file)
-- **`config/sources.json`** - Data sources configuration (create this file)
+- **`config/sources.json.template`** - Data sources configuration template
 - **`docker-compose.dev.yml`** - Docker services configuration
+
+**Note:** Both `.env` and `config/sources.json` are gitignored, so users can customize them without worrying about committing personal configuration.
 
 ## 🏗️ Architecture
 

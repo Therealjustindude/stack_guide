@@ -1,0 +1,61 @@
+{
+  "sources": {
+    "local": [
+      {
+        "id": "company-documentation",
+        "name": "Company Documentation",
+        "path": "/host/company-docs",
+        "type": "local",
+        "enabled": true,
+        "description": "Company documentation in various formats",
+        "patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.xml", "*.ini", "*.sql", "*.csv"],
+        "exclude_patterns": ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
+      }
+    ],
+    "git": [
+      {
+        "id": "main-repo",
+        "name": "Main Repository",
+        "url": "https://github.com/username/project",
+        "type": "git",
+        "branch": "main",
+        "enabled": false,
+        "description": "Main project repository",
+        "auth": {
+          "type": "ssh_key",
+          "path": "~/.ssh/id_rsa"
+        }
+      }
+    ],
+    "cloud": [
+      {
+        "id": "team-confluence",
+        "name": "Team Documentation",
+        "service": "confluence",
+        "type": "cloud",
+        "enabled": false,
+        "description": "Team Confluence space",
+        "config": {
+          "base_url": "https://company.atlassian.net",
+          "space_key": "TEAM",
+          "username": "${CONFLUENCE_USERNAME}",
+          "api_token": "${CONFLUENCE_API_TOKEN}"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "default_chunk_size": 1000,
+    "default_chunk_overlap": 200,
+    "max_file_size_mb": 10,
+    "scan_interval_minutes": 60,
+    "auto_discovery": {
+      "enabled": true,
+      "git_repos": true,
+      "common_paths": [
+        "~/Development",
+        "~/Documents/Projects"
+      ]
+    }
+  }
+}
