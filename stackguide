@@ -22,6 +22,8 @@ show_help() {
     echo -e "${GREEN}Available Commands:${NC}"
     echo "  start           - Start development environment and open CLI"
     echo "  start-gpu       - Start development environment with GPU support"
+    echo "  docker-build    - Build containers without starting them"
+    echo "  docker-build-gpu- Build containers with GPU support (no start)"
     echo "  cli             - Open interactive CLI"
     echo "  ingest          - Ingest data from local sources"
     echo "  ingest-url      - Ingest specific URLs (Confluence, Notion, GitHub)"
@@ -35,6 +37,7 @@ show_help() {
     echo ""
     echo -e "${YELLOW}Examples:${NC}"
     echo "  stackguide start"
+    echo "  stackguide docker-build"
     echo "  stackguide ingest-url"
     echo "  stackguide query 'How do I set up the database?'"
     echo "  stackguide status"
@@ -57,17 +60,48 @@ check_services() {
     return 0
 }
 
+# Function to build containers
+build_containers() {
+    echo -e "${BLUE}🔧 Building StackGuide containers...${NC}"
+    cd "$SCRIPT_DIR"
+    docker compose -f docker-compose.dev.yml build
+    echo -e "${GREEN}✅ Containers built successfully!${NC}"
+    echo -e "${BLUE}💡 Use 'stackguide start' to start the services${NC}"
+}
+
+# Function to build containers with GPU support
+build_containers_gpu() {
+    echo -e "${BLUE}🔧 Building StackGuide containers with GPU support...${NC}"
+    cd "$SCRIPT_DIR"
+    docker compose -f docker-compose.dev.yml --profile gpu build
+    echo -e "${GREEN}✅ GPU containers built successfully!${NC}"
+    echo -e "${BLUE}💡 Use 'stackguide start-gpu' to start the services${NC}"
+}
+
 # Function to start services
 start_services() {
     echo -e "${BLUE}🚀 Starting StackGuide services...${NC}"
     cd "$SCRIPT_DIR"
     
+    # Check if containers exist, build if needed
+    if ! docker compose -f docker-compose.dev.yml ps --services --filter "status=running" | grep -q .; then
+        echo -e "${YELLOW}⚠️  No running containers found. Checking if containers exist...${NC}"
+        if ! docker compose -f docker-compose.dev.yml ps --services | grep -q .; then
+            echo -e "${YELLOW}⚠️  No containers found. Building them first...${NC}"
+            if [ "$1" = "gpu" ]; then
+                build_containers_gpu
+            else
+                build_containers
+            fi
+        fi
+    fi
+    
     if [ "$1" = "gpu" ]; then
         echo -e "${BLUE}🔧 Using GPU profile...${NC}"
-        docker compose -f docker-compose.dev.yml --profile gpu up --build -d
+        docker compose -f docker-compose.dev.yml --profile gpu up -d
     else
         echo -e "${BLUE}🔧 Using CPU profile...${NC}"
-        docker compose -f docker-compose.dev.yml --profile cpu up --build -d
+        docker compose -f docker-compose.dev.yml --profile cpu up -d
     fi
     
     echo -e "${YELLOW}⏳ Waiting for services to be ready...${NC}"
@@ -194,6 +228,12 @@ main() {
                 echo -e "${GREEN}🎉 StackGuide is ready with GPU support!${NC}"
                 echo -e "${BLUE}💡 Use 'stackguide cli' to open the interactive CLI${NC}"
             fi
+            ;;
+        "docker-build")
+            build_containers
+            ;;
+        "docker-build-gpu")
+            build_containers_gpu
             ;;
         "cli")
             if ! check_services; then

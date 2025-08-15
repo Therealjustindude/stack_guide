@@ -25,6 +25,8 @@ function Show-Help {
     Write-Host "$GreenAvailable Commands:$Reset"
     Write-Host "  start           - Start development environment and open CLI"
     Write-Host "  start-gpu       - Start development environment with GPU support"
+    Write-Host "  docker-build    - Build containers without starting them"
+    Write-Host "  docker-build-gpu- Build containers with GPU support (no start)"
     Write-Host "  cli             - Open interactive CLI"
     Write-Host "  ingest          - Ingest data from local sources"
     Write-Host "  ingest-url      - Ingest specific URLs (Confluence, Notion, GitHub)"
@@ -63,6 +65,31 @@ function Test-Services {
     }
     catch {
         return $false
+    }
+}
+
+# Function to build containers
+function Build-Containers {
+    param([string]$Profile = "cpu")
+    
+    Write-Host "$Blue🔧 Building StackGuide containers...$Reset"
+    Set-Location $PSScriptRoot
+    
+    if ($Profile -eq "gpu") {
+        Write-Host "$Blue🔧 Using GPU profile...$Reset"
+        docker compose -f docker-compose.dev.yml --profile gpu build
+    }
+    else {
+        Write-Host "$Blue🔧 Using CPU profile...$Reset"
+        docker compose -f docker-compose.dev.yml build
+    }
+    
+    Write-Host "$Green✅ Containers built successfully!$Reset"
+    if ($Profile -eq "gpu") {
+        Write-Host "$Blue💡 Use 'stackguide start-gpu' to start the services$Reset"
+    }
+    else {
+        Write-Host "$Blue💡 Use 'stackguide start' to start the services$Reset"
     }
 }
 
@@ -209,6 +236,12 @@ function Main {
                 Write-Host "$Green🎉 StackGuide is ready with GPU support!$Reset"
                 Write-Host "$Blue💡 Use 'stackguide cli' to open the interactive CLI$Reset"
             }
+        }
+        "docker-build" {
+            Build-Containers
+        }
+        "docker-build-gpu" {
+            Build-Containers "gpu"
         }
         "cli" {
             if (-not (Test-Services)) {

@@ -69,6 +69,12 @@ stackguide start
 # Start with GPU support
 stackguide start-gpu
 
+# Build containers without starting (useful for first-time setup)
+stackguide docker-build
+
+# Build GPU containers without starting
+stackguide docker-build-gpu
+
 # Just open CLI (starts services if needed)
 stackguide cli
 
@@ -87,6 +93,11 @@ stackguide logs
 # Stop services
 stackguide stop
 ```
+
+### **Build vs Start:**
+- **`stackguide docker-build`** - Builds containers (takes time, do once)
+- **`stackguide start`** - Starts existing containers (fast, do daily)
+- **`stackguide start`** will auto-build if containers don't exist
 
 ### **Why Use Scripts?**
 - **Intuitive Commands** - `stackguide start` instead of `make dev`

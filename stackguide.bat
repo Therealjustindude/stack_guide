@@ -23,6 +23,8 @@ if "%1"=="-h" goto show_help
 
 if "%1"=="start" goto start_services
 if "%1"=="start-gpu" goto start_services_gpu
+if "%1"=="docker-build" goto build_containers
+if "%1"=="docker-build-gpu" goto build_containers_gpu
 if "%1"=="cli" goto open_cli
 if "%1"=="ingest" goto run_ingestion
 if "%1"=="ingest-url" goto open_cli
@@ -43,6 +45,8 @@ echo.
 echo Available Commands:
 echo   start           - Start development environment and open CLI
 echo   start-gpu       - Start development environment with GPU support
+echo   docker-build    - Build containers without starting them
+echo   docker-build-gpu- Build containers with GPU support (no start)
 echo   cli             - Open interactive CLI
 echo   ingest          - Ingest data from local sources
 echo   ingest-url      - Ingest specific URLs (Confluence, Notion, GitHub)
@@ -101,6 +105,18 @@ if errorlevel 1 (
 echo ✅ Services are running!
 echo 🎉 StackGuide is ready with GPU support!
 echo 💡 Use 'stackguide cli' to open the interactive CLI
+goto end
+
+:build_containers
+echo 📦 Building StackGuide containers...
+docker compose -f docker-compose.dev.yml build
+echo ✅ Containers built.
+goto end
+
+:build_containers_gpu
+echo 📦 Building StackGuide containers with GPU support...
+docker compose -f docker-compose.dev.yml --profile gpu build
+echo ✅ Containers built.
 goto end
 
 :open_cli
