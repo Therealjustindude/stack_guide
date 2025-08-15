@@ -54,6 +54,8 @@ make cli
 
 - **[Configuration Guide](docs/CONFIGURATION.md)** - Add data sources and customize settings
 - **[Quick Start: Adding Sources](docs/QUICK_START_SOURCES.md)** - 3-step guide to add your first source
+- **[Enterprise Ingestion Guide](docs/ENTERPRISE_INGESTION.md)** - Smart strategies for large documentation systems
+- **[Feedback Template](docs/FEEDBACK_TEMPLATE.md)** - Template for testing feedback and bug reports
 - **[API Reference](docs/API.md)** - API endpoints and usage (coming soon)
 
 ## 🏗️ Architecture

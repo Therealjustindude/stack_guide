@@ -503,6 +503,167 @@ class DataIngestionEngine:
         logger.info(f"Ingestion complete: {result.files_processed} files, {result.chunks_created} chunks")
         return result
     
+    def ingest_url(self, url: str, source_name: str = None) -> IngestionResult:
+        """Ingest a specific document from a URL."""
+        try:
+            logger.info(f"Starting URL ingestion: {url}")
+            
+            # Parse URL to determine source type
+            if 'confluence' in url.lower():
+                return self._ingest_confluence_page(url, source_name)
+            elif 'notion' in url.lower():
+                return self._ingest_notion_page(url, source_name)
+            elif 'github' in url.lower():
+                return self._ingest_github_content(url, source_name)
+            elif 'google.com/docs' in url.lower():
+                return self._ingest_google_docs(url, source_name)
+            else:
+                return self._ingest_generic_url(url, source_name)
+                
+        except Exception as e:
+            logger.error(f"Error ingesting URL {url}: {e}")
+            return IngestionResult(
+                files_processed=0,
+                chunks_created=0,
+                sources_processed=0,
+                errors=[f"Failed to ingest {url}: {str(e)}"]
+            )
+    
+    def _ingest_confluence_page(self, url: str, source_name: str = None) -> IngestionResult:
+        """Ingest a specific Confluence page."""
+        try:
+            # Extract page ID from URL
+            page_id = self._extract_confluence_page_id(url)
+            if not page_id:
+                raise ValueError("Could not extract page ID from Confluence URL")
+            
+            # Get page content via Confluence API
+            page_content = self._fetch_confluence_page(page_id)
+            
+            # Process the content
+            chunks = self._process_content(page_content, f"confluence_page_{page_id}")
+            
+            # Store in vector database
+            self._store_chunks(chunks, {
+                'source_type': 'confluence',
+                'source_url': url,
+                'page_id': page_id,
+                'source_name': source_name or f"Confluence Page {page_id}",
+                'ingested_at': datetime.now().isoformat()
+            })
+            
+            logger.info(f"Successfully ingested Confluence page {page_id}")
+            return IngestionResult(
+                files_processed=1,
+                chunks_created=len(chunks),
+                sources_processed=1,
+                errors=[]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error ingesting Confluence page: {e}")
+            raise
+    
+    def _ingest_notion_page(self, url: str, source_name: str = None) -> IngestionResult:
+        """Ingest a specific Notion page."""
+        try:
+            # Extract page ID from URL
+            page_id = self._extract_notion_page_id(url)
+            if not page_id:
+                raise ValueError("Could not extract page ID from Notion URL")
+            
+            # Get page content via Notion API
+            page_content = self._fetch_notion_page(page_id)
+            
+            # Process the content
+            chunks = self._process_content(page_content, f"notion_page_{page_id}")
+            
+            # Store in vector database
+            self._store_chunks(chunks, {
+                'source_type': 'notion',
+                'source_url': url,
+                'page_id': page_id,
+                'source_name': source_name or f"Notion Page {page_id}",
+                'ingested_at': datetime.now().isoformat()
+            })
+            
+            logger.info(f"Successfully ingested Notion page {page_id}")
+            return IngestionResult(
+                files_processed=1,
+                chunks_created=len(chunks),
+                sources_processed=1,
+                errors=[]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error ingesting Notion page: {e}")
+            raise
+    
+    def _ingest_github_content(self, url: str, source_name: str = None) -> IngestionResult:
+        """Ingest specific GitHub content (file, README, etc.)."""
+        try:
+            # Parse GitHub URL to get repo, path, etc.
+            repo_info = self._parse_github_url(url)
+            if not repo_info:
+                raise ValueError("Could not parse GitHub URL")
+            
+            # Fetch content via GitHub API
+            content = self._fetch_github_content(repo_info)
+            
+            # Process the content
+            chunks = self._process_content(content, f"github_{repo_info['path']}")
+            
+            # Store in vector database
+            self._store_chunks(chunks, {
+                'source_type': 'github',
+                'source_url': url,
+                'repo': repo_info['repo'],
+                'path': repo_info['path'],
+                'source_name': source_name or f"GitHub {repo_info['repo']}/{repo_info['path']}",
+                'ingested_at': datetime.now().isoformat()
+            })
+            
+            logger.info(f"Successfully ingested GitHub content: {repo_info['path']}")
+            return IngestionResult(
+                files_processed=1,
+                chunks_created=len(chunks),
+                sources_processed=1,
+                errors=[]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error ingesting GitHub content: {e}")
+            raise
+    
+    def _ingest_generic_url(self, url: str, source_name: str = None) -> IngestionResult:
+        """Ingest generic web content."""
+        try:
+            # Fetch web page content
+            content = self._fetch_web_content(url)
+            
+            # Process the content
+            chunks = self._process_content(content, f"web_page_{hash(url)}")
+            
+            # Store in vector database
+            self._store_chunks(chunks, {
+                'source_type': 'web',
+                'source_url': url,
+                'source_name': source_name or f"Web Page {urlparse(url).netloc}",
+                'ingested_at': datetime.now().isoformat()
+            })
+            
+            logger.info(f"Successfully ingested web content: {url}")
+            return IngestionResult(
+                files_processed=1,
+                chunks_created=len(chunks),
+                sources_processed=1,
+                errors=[]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error ingesting web content: {e}")
+            raise
+    
     def _ingest_local_directory(self, directory_path: Path, force_reindex: bool) -> Dict[str, Any]:
         """Ingest documents from a local directory."""
         files_processed = 0

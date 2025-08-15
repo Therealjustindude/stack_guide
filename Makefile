@@ -146,6 +146,13 @@ ingest:
 	@echo "📚 Ingesting data into StackGuide..."
 	docker compose exec api python -m cli.main ingest
 
+# Ingest specific URL
+ingest-url:
+	@echo "🔗 Ingesting specific URL into StackGuide..."
+	@read -p "Enter URL to ingest: " url; \
+	read -p "Enter source name (optional): " name; \
+	docker compose exec api python -m cli.main ingest-url "$$url" "$$name"
+
 # Quick start - full setup and launch
 stackguide:
 	@echo "🚀 StackGuide - Full Setup & Launch"
@@ -294,3 +301,8 @@ restart-chroma:
 restart-all:
 	@echo "🔄 Restarting all services..."
 	@docker compose restart
+
+# Collect feedback data
+feedback:
+	@echo "📊 Collecting StackGuide feedback data..."
+	python scripts/collect_feedback.py

@@ -15,8 +15,50 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def run_help():
+    """Display help information."""
+    print("\n📚 Available Commands:")
+    print("  ingest     - Ingest all configured data sources")
+    print("  ingest-url - Ingest a specific URL (Confluence, Notion, GitHub, etc.)")
+    print("  query      - Ask a question about your documentation")
+    print("  sources    - View and manage data sources")
+    print("  status     - Check system status and collection stats")
+    print("  help       - Show this help message")
+    print("  quit       - Exit the CLI\n")
+
+def run_ingest_url():
+    """Ingest a specific URL."""
+    print("\n🔗 URL Ingestion")
+    print("Enter a URL to ingest (Confluence, Notion, GitHub, Google Docs, etc.)")
+    
+    url = input("URL: ").strip()
+    if not url:
+        print("❌ No URL provided")
+        return
+    
+    source_name = input("Source name (optional): ").strip() or None
+    
+    print(f"\n🔄 Ingesting: {url}")
+    print("Please wait...")
+    
+    try:
+        engine = DataIngestionEngine()
+        result = engine.ingest_url(url, source_name)
+        
+        if result.errors:
+            print(f"❌ Ingestion failed with errors:")
+            for error in result.errors:
+                print(f"   - {error}")
+        else:
+            print(f"✅ URL ingestion complete!")
+            print(f"   Chunks created: {result.chunks_created}")
+            print(f"   Source: {source_name or 'Unnamed'}")
+            
+    except Exception as e:
+        logger.error(f"Error during URL ingestion: {e}")
+        print(f"❌ An error occurred: {e}")
+
 def main():
-    """Main CLI entry point."""
     print("🚀 StackGuide CLI")
     print("Type 'help' for available commands, 'quit' to exit\n")
     
@@ -31,6 +73,8 @@ def main():
                 run_help()
             elif command == "ingest":
                 run_ingestion()
+            elif command == "ingest-url":
+                run_ingest_url()
             elif command == "sources":
                 run_sources()
             elif command == "query":
@@ -47,17 +91,6 @@ def main():
         except Exception as e:
             logger.error(f"Error: {e}")
             print(f"An error occurred: {e}")
-
-
-def run_help():
-    """Show available commands."""
-    print("\n📚 Available Commands:")
-    print("  ingest   - Ingest data from configured sources")
-    print("  sources  - View configured data sources")
-    print("  query    - Ask a question about your documentation")
-    print("  status   - Show system status and health")
-    print("  help     - Show this help message")
-    print("  quit     - Exit the CLI\n")
 
 
 def run_ingestion():
