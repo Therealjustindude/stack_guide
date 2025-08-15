@@ -26,7 +26,7 @@ class ConfigPersistence:
             config_path: Path to configuration file
         """
         if config_path is None:
-            config_path = Path("/app/config/sources.json")
+            config_path = Path("./config/sources.json")
         
         self.config_path = Path(config_path)
         self.config_data = {}
@@ -94,7 +94,7 @@ class ConfigPersistence:
                     {
                         "id": "current-project",
                         "name": "Current Project",
-                        "path": "/app",
+                        "path": "./",
                         "type": "local",
                         "enabled": True,
                         "description": "Current project directory",

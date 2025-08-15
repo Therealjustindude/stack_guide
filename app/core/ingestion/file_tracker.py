@@ -27,7 +27,7 @@ class FileTracker:
             tracker_path: Path to store the tracker data
         """
         if tracker_path is None:
-            tracker_path = Path("/app/config/file_tracker.pkl")
+            tracker_path = Path("./config/file_tracker.pkl")
         
         self.tracker_path = tracker_path
         self.file_data = self._load_tracker()
