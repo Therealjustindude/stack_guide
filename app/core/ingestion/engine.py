@@ -638,18 +638,26 @@ class IngestionEngine:
         try:
             # Get the source configuration to know what patterns to look for
             source_config = None
+            logger.debug(f"Looking for source config for directory: {directory_path}")
+            logger.debug(f"Available sources: {[s.get('path', '') for s in self.sources]}")
+            
             for source in self.sources:
-                if str(source.get('path', '')) == str(directory_path):
+                source_path = str(source.get('path', ''))
+                logger.debug(f"Comparing source path '{source_path}' with directory '{directory_path}'")
+                if source_path == str(directory_path):
                     source_config = source
+                    logger.debug(f"Found matching source config: {source_config}")
                     break
             
             if not source_config:
                 # Default patterns if no specific config found
                 patterns = ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.xml", "*.ini", "*.sql", "*.csv"]
                 exclude_patterns = ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
+                logger.warning(f"No source config found for {directory_path}, using default patterns")
             else:
                 patterns = source_config.get('patterns', ["*.md", "*.txt"])
                 exclude_patterns = source_config.get('exclude_patterns', ["__pycache__", "*.pyc", ".git"])
+                logger.debug(f"Using patterns from config: {patterns}")
             
             # Scan directory recursively
             for file_path in directory_path.rglob("*"):
@@ -659,6 +667,7 @@ class IngestionEngine:
                     for pattern in patterns:
                         if file_path.match(pattern):
                             file_matches = True
+                            logger.debug(f"File {file_path} matches pattern {pattern}")
                             break
                     
                     # Check if file should be excluded
@@ -668,14 +677,17 @@ class IngestionEngine:
                             # File extension pattern
                             if file_path.suffix == exclude_pattern[1:]:
                                 file_excluded = True
+                                logger.debug(f"File {file_path} excluded by pattern {exclude_pattern}")
                                 break
                         elif exclude_pattern in str(file_path):
                             # Path contains pattern
                             file_excluded = True
+                            logger.debug(f"File {file_path} excluded by pattern {exclude_pattern}")
                             break
                     
                     if file_matches and not file_excluded:
                         files.append(file_path)
+                        logger.debug(f"Added file {file_path} to processing list")
             
             logger.info(f"Found {len(files)} files matching patterns in {directory_path}")
             
