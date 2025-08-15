@@ -6,7 +6,7 @@ StackGuide CLI - Command-line interface for StackGuide.
 import sys
 import logging
 from typing import Optional
-from core.ingestion import DataIngestionEngine
+from core.ingestion import IngestionEngine
 from core.config import ConfigManager
 from core.knowledge import KnowledgeEngine
 
@@ -42,7 +42,7 @@ def run_ingest_url():
     print("Please wait...")
     
     try:
-        engine = DataIngestionEngine()
+        engine = IngestionEngine()
         result = engine.ingest_url(url, source_name)
         
         if result.errors:
@@ -98,7 +98,7 @@ def run_ingestion():
     print("🔄 Starting data ingestion...")
     
     try:
-        engine = DataIngestionEngine()
+        engine = IngestionEngine()
         result = engine.ingest_all(force_reindex=True)
         
         print(f"✅ Ingestion complete!")
@@ -204,7 +204,7 @@ def run_status():
         print(f"   Enabled sources: {len(enabled_sources)}")
         
         # Check data ingestion engine
-        ingestion_engine = DataIngestionEngine()
+        ingestion_engine = IngestionEngine()
         print(f"\n📥 Data Ingestion:")
         print(f"   Sources configured: {len(ingestion_engine.sources)}")
         

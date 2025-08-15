@@ -11,9 +11,11 @@ This package provides comprehensive data ingestion capabilities including:
 from .file_tracker import FileTracker
 from .parallel import ParallelProcessor
 from .discovery import ProjectDiscovery
+from .engine import IngestionEngine
 
 __all__ = [
     'FileTracker',
     'ParallelProcessor', 
-    'ProjectDiscovery'
+    'ProjectDiscovery',
+    'IngestionEngine'
 ]
