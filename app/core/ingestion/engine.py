@@ -475,6 +475,8 @@ class IngestionEngine:
             
             # Get common paths to scan
             common_paths = settings.auto_discovery.get('common_paths', [])
+            logger.debug(f"Auto-discovery common_paths from config: {common_paths}")
+            logger.debug(f"Auto-discovery settings: {settings.auto_discovery}")
             
             # Discover projects
             discovered_projects = self.project_discovery.discover_projects_from_paths(common_paths)

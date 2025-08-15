@@ -112,7 +112,7 @@ class ConfigPersistence:
                 "scan_interval_minutes": 60,
                 "auto_discovery": {
                     "enabled": True,
-                    "common_paths": ["~/Development", "~/Projects"],
+                    "common_paths": [],
                     "scan_interval_hours": 24,
                     "max_projects_per_path": 50
                 }

@@ -37,7 +37,7 @@ class Settings:
 class AutoDiscoveryConfig:
     """Configuration for automatic project discovery."""
     enabled: bool = False
-    common_paths: List[str] = field(default_factory=lambda: ["~/Development", "~/Projects"])
+    common_paths: List[str] = field(default_factory=list)
     scan_interval_hours: int = 24
     max_projects_per_path: int = 50
     project_indicators: List[str] = field(default_factory=lambda: [
