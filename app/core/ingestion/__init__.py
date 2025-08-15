@@ -12,10 +12,14 @@ from .file_tracker import FileTracker
 from .parallel import ParallelProcessor
 from .discovery import ProjectDiscovery
 from .engine import IngestionEngine
+from .document_parser import DocumentParser
+from .chroma_storage import ChromaStorage
 
 __all__ = [
     'FileTracker',
-    'ParallelProcessor', 
+    'ParallelProcessor',
     'ProjectDiscovery',
-    'IngestionEngine'
+    'IngestionEngine',
+    'DocumentParser',
+    'ChromaStorage'
 ]

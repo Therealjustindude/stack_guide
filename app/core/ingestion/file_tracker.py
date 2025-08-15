@@ -8,6 +8,7 @@ to avoid re-processing unchanged files during ingestion.
 import os
 import hashlib
 import pickle
+import threading
 from pathlib import Path
 from typing import Dict, Any, Optional
 import logging
@@ -26,10 +27,11 @@ class FileTracker:
             tracker_path: Path to store the tracker data
         """
         if tracker_path is None:
-            tracker_path = Path("/app/data/file_tracker.pkl")
+            tracker_path = Path("/app/config/file_tracker.pkl")
         
         self.tracker_path = tracker_path
         self.file_data = self._load_tracker()
+        self._lock = threading.Lock()  # Thread safety lock
     
     def _load_tracker(self) -> Dict[str, Dict[str, Any]]:
         """Load file tracking data from pickle file."""
@@ -47,8 +49,11 @@ class FileTracker:
             # Ensure directory exists
             self.tracker_path.parent.mkdir(parents=True, exist_ok=True)
             
+            with self._lock:  # Thread-safe read
+                data_to_save = self.file_data.copy()  # Copy to avoid modification during save
+            
             with open(self.tracker_path, 'wb') as f:
-                pickle.dump(self.file_data, f)
+                pickle.dump(data_to_save, f)
         except Exception as e:
             logger.error(f"Error saving file tracker to {self.tracker_path}: {e}")
     
@@ -72,13 +77,14 @@ class FileTracker:
             current_modified = str(stat.st_mtime)
             current_size = stat.st_size
             
-            # Check if file exists in tracker
+            # Check if file exists in tracker (thread-safe read)
             file_key = str(file_path)
-            if file_key not in self.file_data:
-                logger.debug(f"File not in tracker, will index: {file_path}")
-                return True
-            
-            tracked_info = self.file_data[file_key]
+            with self._lock:
+                if file_key not in self.file_data:
+                    logger.debug(f"File not in tracker, will index: {file_path}")
+                    return True
+                
+                tracked_info = self.file_data[file_key]
             
             # Check if modification time changed
             if tracked_info.get("last_modified") != current_modified:
@@ -119,12 +125,13 @@ class FileTracker:
             stat = file_path.stat()
             content_hash = self.calculate_file_hash(file_path)
             
-            self.file_data[str(file_path)] = {
-                "content_hash": content_hash,
-                "last_modified": str(stat.st_mtime),
-                "file_size": stat.st_size,
-                "indexed_in_chroma": indexed_in_chroma
-            }
+            with self._lock:  # Thread-safe update
+                self.file_data[str(file_path)] = {
+                    "content_hash": content_hash,
+                    "last_modified": str(stat.st_mtime),
+                    "file_size": stat.st_size,
+                    "indexed_in_chroma": indexed_in_chroma
+                }
             
             self._save_tracker()
             
@@ -134,24 +141,28 @@ class FileTracker:
     def mark_file_indexed(self, file_path: Path):
         """Mark a file as successfully indexed in Chroma DB."""
         file_key = str(file_path)
-        if file_key in self.file_data:
-            self.file_data[file_key]["indexed_in_chroma"] = True
-            self._save_tracker()
+        with self._lock:  # Thread-safe update
+            if file_key in self.file_data:
+                self.file_data[file_key]["indexed_in_chroma"] = True
+        self._save_tracker()
     
     def get_file_info(self, file_path: Path) -> Optional[Dict[str, Any]]:
         """Get tracking information for a specific file."""
-        return self.file_data.get(str(file_path))
+        with self._lock:  # Thread-safe read
+            return self.file_data.get(str(file_path))
     
     def clear_tracker(self):
         """Clear all file tracking data."""
-        self.file_data = {}
+        with self._lock:  # Thread-safe update
+            self.file_data = {}
         self._save_tracker()
         logger.info("File tracker cleared")
     
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about tracked files."""
-        total_files = len(self.file_data)
-        indexed_files = sum(1 for info in self.file_data.values() if info.get("indexed_in_chroma", False))
+        with self._lock:  # Thread-safe read
+            total_files = len(self.file_data)
+            indexed_files = sum(1 for info in self.file_data.values() if info.get("indexed_in_chroma", False))
         
         return {
             "total_tracked_files": total_files,

@@ -16,6 +16,8 @@ import re
 from .file_tracker import FileTracker
 from .parallel import ParallelProcessor
 from .discovery import ProjectDiscovery
+from .chroma_storage import ChromaStorage
+from .document_parser import DocumentParser
 from core.config import ConfigManager, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -35,6 +37,8 @@ class IngestionEngine:
         self.file_tracker = FileTracker()
         self.parallel_processor = ParallelProcessor(max_workers=4)
         self.project_discovery = ProjectDiscovery()
+        self.chroma_storage = ChromaStorage()
+        self.document_parser = DocumentParser()
         
         # Initialize configuration manager
         self.config_manager = ConfigManager(config_path)
@@ -600,15 +604,27 @@ class IngestionEngine:
     def _process_single_file(self, file_path: Path, source_path: Path) -> Optional[Dict[str, Any]]:
         """Process a single file and return processing results."""
         try:
-            # Parse the file (this would call the document parser)
-            # For now, we'll create a placeholder
-            chunks_created = 1  # Placeholder
+            # Parse the file using the document parser
+            chunks = self.document_parser.parse_file(file_path)
+            
+            if not chunks:
+                logger.warning(f"No chunks created for file: {file_path}")
+                return {"chunks_created": 0}
+            
+            # Store chunks in Chroma DB
+            source_name = self._get_source_name_for_path(source_path)
+            chunks_stored = self.chroma_storage.store_chunks(chunks, source_name)
+            
+            if chunks_stored != len(chunks):
+                logger.warning(f"Only stored {chunks_stored}/{len(chunks)} chunks for {file_path}")
             
             # Update file tracker
             self.file_tracker.update_file_tracker(file_path)
             
             return {
-                "chunks_created": chunks_created
+                "chunks_created": len(chunks),
+                "chunks_stored": chunks_stored,
+                "file_path": str(file_path)
             }
             
         except Exception as e:
@@ -617,9 +633,56 @@ class IngestionEngine:
     
     def _scan_directory(self, directory_path: Path):
         """Scan directory for files to process."""
-        # This would implement the file scanning logic
-        # For now, return an empty list
-        return []
+        files = []
+        
+        try:
+            # Get the source configuration to know what patterns to look for
+            source_config = None
+            for source in self.sources:
+                if str(source.get('path', '')) == str(directory_path):
+                    source_config = source
+                    break
+            
+            if not source_config:
+                # Default patterns if no specific config found
+                patterns = ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.xml", "*.ini", "*.sql", "*.csv"]
+                exclude_patterns = ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
+            else:
+                patterns = source_config.get('patterns', ["*.md", "*.txt"])
+                exclude_patterns = source_config.get('exclude_patterns', ["__pycache__", "*.pyc", ".git"])
+            
+            # Scan directory recursively
+            for file_path in directory_path.rglob("*"):
+                if file_path.is_file():
+                    # Check if file matches any pattern
+                    file_matches = False
+                    for pattern in patterns:
+                        if file_path.match(pattern):
+                            file_matches = True
+                            break
+                    
+                    # Check if file should be excluded
+                    file_excluded = False
+                    for exclude_pattern in exclude_patterns:
+                        if exclude_pattern.startswith("*."):
+                            # File extension pattern
+                            if file_path.suffix == exclude_pattern[1:]:
+                                file_excluded = True
+                                break
+                        elif exclude_pattern in str(file_path):
+                            # Path contains pattern
+                            file_excluded = True
+                            break
+                    
+                    if file_matches and not file_excluded:
+                        files.append(file_path)
+            
+            logger.info(f"Found {len(files)} files matching patterns in {directory_path}")
+            
+        except Exception as e:
+            logger.error(f"Error scanning directory {directory_path}: {e}")
+        
+        return files
     
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about the ingestion engine."""
@@ -635,3 +698,21 @@ class IngestionEngine:
         """Clear all file tracking data."""
         self.file_tracker.clear_tracker()
         logger.info("File tracker cleared")
+    
+    def _get_source_name_for_path(self, source_path: Path) -> str:
+        """
+        Get the source name for a given path.
+        
+        Args:
+            source_path: Path to the source
+            
+        Returns:
+            Source name string
+        """
+        # Try to find the source in configuration
+        for source in self.sources:
+            if str(source.get('path', '')) == str(source_path):
+                return source.get('name', str(source_path))
+        
+        # If not found in config, use the path name
+        return source_path.name if source_path.name else str(source_path)

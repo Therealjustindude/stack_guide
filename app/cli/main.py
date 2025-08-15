@@ -102,9 +102,9 @@ def run_ingestion():
         result = engine.ingest_all(force_reindex=True)
         
         print(f"✅ Ingestion complete!")
-        print(f"   Files processed: {result.files_processed}")
-        print(f"   Chunks created: {result.chunks_created}")
-        print(f"   Sources processed: {len(result.sources_updated)}")
+        print(f"   Files processed: {result['files_processed']}")
+        print(f"   Chunks created: {result['chunks_created']}")
+        print(f"   Sources processed: {len(result['sources_updated'])}")
         
     except Exception as e:
         logger.error(f"Ingestion failed: {e}")
