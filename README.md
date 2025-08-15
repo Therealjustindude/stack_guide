@@ -33,22 +33,92 @@
 
 ## 🚀 Quick Start
 
+### **1. Clone and Setup**
 ```bash
-# 1. Clone and setup
+# Clone the repository
 git clone <your-repo>
 cd stack_guide
 
-# 2. Launch (starts all services)
-make dev
-
-# 3. Add your first data source
-make cli
-# Then type: sources
-
-# 4. Start asking questions
-make cli
-# Then type: query "How do I set up the database?"
+# Make scripts executable
+chmod +x install-scripts.sh
+chmod +x stackguide
 ```
+
+### **2. Install Scripts (One Time)**
+```bash
+# Install scripts to your PATH for easy access
+./install-scripts.sh
+
+# Restart your terminal (or source your shell config)
+source ~/.zshrc  # or source ~/.bash_profile
+```
+
+### **3. Build and Start (First Time)**
+```bash
+# Build containers (takes 5-10 minutes, do once)
+stackguide docker-build
+
+# Start services and open CLI
+stackguide start
+```
+
+### **4. Daily Usage**
+```bash
+# Just start services (fast, containers already built)
+stackguide start
+
+# Or open CLI directly (services start automatically if needed)
+stackguide cli
+```
+
+### **What Each Step Does:**
+
+- **`./install-scripts.sh`** - Copies scripts to `~/.local/bin` and adds to PATH
+- **`stackguide docker-build`** - Builds Docker images (slow, one-time setup)
+- **`stackguide start`** - Starts containers and opens CLI (fast, daily use)
+- **`stackguide cli`** - Opens CLI, auto-starts services if needed
+
+### **Troubleshooting:**
+```bash
+# If scripts aren't found after installation:
+source ~/.zshrc  # or source ~/.bash_profile
+
+# If containers fail to start:
+stackguide logs          # Check what went wrong
+stackguide docker-build  # Rebuild if needed
+
+# If you want to start fresh:
+stackguide clean         # Remove all containers and images
+stackguide docker-build  # Rebuild everything
+```
+
+### **First Time Setup Experience:**
+
+1. **`stackguide docker-build`** - This will take 5-10 minutes as it downloads and builds:
+   - Python dependencies
+   - Chroma DB
+   - Local LLM models
+   - All service containers
+
+2. **`stackguide start`** - This will:
+   - Start all services (API, Chroma DB, LLM)
+   - Wait for services to be ready
+   - Open the interactive CLI
+
+3. **Add Your First Data Source:**
+   ```bash
+   # In the CLI, type:
+   sources
+   
+   # Then add a local directory or use URL ingestion:
+   ingest-url
+   ```
+
+4. **Start Asking Questions:**
+   ```bash
+   # In the CLI, type:
+   query "How do I set up the database?"
+   ```
 
 ## 🎯 **Convenient Scripts (Recommended)**
 
@@ -105,6 +175,15 @@ stackguide stop
 - **Smart Auto-Start** - Services start automatically when needed
 - **Better UX** - Colored output, progress indicators, helpful messages
 - **Available Everywhere** - Run from any directory once installed
+
+### **Alternative: Make Commands**
+If you prefer the traditional `make` approach:
+```bash
+make dev          # Start development environment
+make cli          # Open interactive CLI
+make ingest-url   # Start CLI for URL ingestion
+make status       # Check system status
+```
 
 ## 🔗 URL Ingestion - Enterprise Documentation
 
