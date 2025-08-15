@@ -12,8 +12,45 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Script directory - find the project root by looking for docker-compose.dev.yml
+find_project_root() {
+    local current_dir="$(pwd)"
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    
+    # First, try to find docker-compose.dev.yml in current directory
+    if [ -f "docker-compose.dev.yml" ]; then
+        echo "$current_dir"
+        return 0
+    fi
+    
+    # Then try to find it in parent directories from current location
+    local dir="$current_dir"
+    while [ "$dir" != "/" ]; do
+        if [ -f "$dir/docker-compose.dev.yml" ]; then
+            echo "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+    
+    # Finally, try to find it from the script's location
+    dir="$script_dir"
+    while [ "$dir" != "/" ]; do
+        if [ -f "$dir/docker-compose.dev.yml" ]; then
+            echo "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+    
+    # If we still can't find it, use current directory and show warning
+    echo -e "${YELLOW}⚠️  Could not find docker-compose.dev.yml in parent directories${NC}" >&2
+    echo -e "${YELLOW}⚠️  Make sure you're running this from the StackGuide project directory${NC}" >&2
+    echo "$current_dir"
+}
+
+# Get the project root directory
+SCRIPT_DIR="$(find_project_root)"
 
 # Function to show help
 show_help() {
