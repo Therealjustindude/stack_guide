@@ -30,6 +30,7 @@ make cli      # Open CLI (in new terminal)
 - **Citations-first**: Every answer links back to the source material
 - **Role-agnostic**: Useful for developers, QA, designers, ops, and beyond
 - **Secure**: Redacts sensitive values, ignores secrets, and respects .onboarderignore rules
+- **Configurable**: Easy to add local directories, Git repos, and cloud services (Confluence, etc.)
 
 ## 🏗️ Architecture
 
@@ -39,6 +40,33 @@ make cli      # Open CLI (in new terminal)
 - **Interface**: CLI-first (web UI can be added later)
 - **Containerization**: Docker & Docker Compose
 - **Embeddings**: Local nomic-embed-text model
+
+## ⚙️ Configuration
+
+StackGuide automatically indexes your current project, but you can easily add more data sources:
+
+### Adding Data Sources
+```bash
+# View current sources
+make cli
+# Then type: sources
+
+# Edit configuration
+vim config/sources.json
+
+# Restart to apply changes
+make dev-restart
+
+# Test ingestion
+make ingest
+```
+
+### Supported Source Types
+- **Local directories** - Index any folder on your machine
+- **Git repositories** - Clone and index remote repos
+- **Cloud services** - Confluence, Notion, Google Drive (coming soon)
+
+See the [Configuration Guide](docs/CONFIGURATION.md) for detailed examples.
 
 ## 🚀 Quick Start
 
@@ -62,6 +90,14 @@ make dev
 make cli
 ```
 
+## 📚 Documentation
+
+- **[Documentation Index](docs/README.md)** - Complete documentation overview
+- **[Configuration Guide](docs/CONFIGURATION.md)** - Complete guide to configuring data sources and settings
+- **[Quick Start: Adding Sources](docs/QUICK_START_SOURCES.md)** - 3-step guide to add your first data source
+- **[API Reference](docs/API.md)** - API endpoints and usage (coming soon)
+- **[Connectors Guide](docs/CONNECTORS.md)** - Cloud service integration (coming soon)
+
 ### One-Command Launch
 
 ```bash
@@ -84,8 +120,13 @@ make query Q="How do I set up my development environment?"
 # Smart query (auto-starts services if needed)
 make quick-query Q="How do I set up my development environment?"
 
+# View configured data sources
+make cli
+# Then type: sources
+
 # Or directly from the container
 docker compose exec api python -m cli.main query "Where is the payment integration code?"
+docker compose exec api python -m cli.main sources
 ```
 
 ### Smart Development Workflows

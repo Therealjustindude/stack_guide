@@ -13,6 +13,8 @@ services:
       - ./data:/data
       - ./models:/models
       - ./requirements.txt:/app/requirements.txt
+      - ./config:/app/config
+      - .:/workspace
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
@@ -108,6 +110,8 @@ services:
       - ./data:/data
       - ./models:/models
       - ./requirements.txt:/app/requirements.txt
+      - ./config:/app/config
+      - .:/workspace
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000

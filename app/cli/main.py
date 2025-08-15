@@ -37,12 +37,13 @@ Examples:
     stackguide ingest
     stackguide search "Docker configuration"
     stackguide status
+    stackguide sources
         """
     )
     
     parser.add_argument(
         "command",
-        choices=["query", "interactive", "ingest", "status", "search"],
+        choices=["query", "interactive", "ingest", "status", "search", "sources"],
         help="Command to execute"
     )
     
@@ -80,6 +81,8 @@ Examples:
             run_search(args.query_text)
         elif args.command == "status":
             show_status()
+        elif args.command == "sources":
+            run_sources()
     except KeyboardInterrupt:
         print("\nOperation cancelled by user")
         sys.exit(0)
@@ -134,16 +137,18 @@ def run_ingestion():
     print("📚 Starting data ingestion...")
     
     try:
-        # Initialize ingestion engine
+        # Initialize ingestion engine (will load sources from config)
         engine = DataIngestionEngine()
         
-        # Add current directory as source
-        current_dir = Path.cwd()
-        if engine.add_source(str(current_dir), "local"):
-            print(f"✅ Added source: {current_dir}")
-        else:
-            print(f"❌ Failed to add source: {current_dir}")
+        # Check if we have configured sources
+        if not engine.sources:
+            print("⚠️  No data sources configured")
+            print("💡 Add sources to config/sources.json or use the CLI to configure them")
             return
+        
+        print(f"📁 Found {len(engine.sources)} configured sources")
+        for source in engine.sources:
+            print(f"   - {source['config'].name if 'config' in source else 'Unknown'}: {source['path']}")
         
         # Run ingestion
         print("🔄 Processing documents...")
@@ -211,6 +216,46 @@ def show_status():
     # TODO: Check service health and show status
     print("Status checking coming soon!")
     print("Make sure the StackGuide services are running with 'make dev'")
+
+
+def run_sources():
+    """Manage data sources."""
+    print("🔧 Data Source Management")
+    print("=" * 30)
+    
+    try:
+        from core.config import ConfigManager
+        
+        config = ConfigManager()
+        enabled_sources = config.get_enabled_sources()
+        
+        if not enabled_sources:
+            print("⚠️  No data sources configured")
+            print("💡 Add sources to config/sources.json or use the CLI to configure them")
+            return
+        
+        print(f"📁 Found {len(enabled_sources)} enabled sources:")
+        print()
+        
+        for source in enabled_sources:
+            status = "✅ Enabled" if source.enabled else "❌ Disabled"
+            print(f"{source.name} ({source.type})")
+            print(f"   ID: {source.id}")
+            print(f"   Path: {source.path}")
+            print(f"   Description: {source.description}")
+            print(f"   Status: {status}")
+            if source.patterns:
+                print(f"   Patterns: {', '.join(source.patterns)}")
+            if source.exclude_patterns:
+                print(f"   Exclude: {', '.join(source.exclude_patterns)}")
+            print()
+        
+        print("💡 Use 'stackguide sources add <type> <path>' to add new sources")
+        print("💡 Edit config/sources.json to modify source configurations")
+        
+    except Exception as e:
+        print(f"❌ Error managing sources: {e}")
+        print("Make sure the StackGuide services are running with 'make dev'")
 
 
 if __name__ == "__main__":

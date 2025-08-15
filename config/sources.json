@@ -1,0 +1,62 @@
+{
+  "sources": {
+    "local": [
+      {
+        "id": "stackguide-project",
+        "name": "StackGuide Project",
+        "path": "/app",
+        "type": "local",
+        "enabled": true,
+        "description": "Current StackGuide project files",
+        "patterns": ["*.py", "*.md", "*.txt", "*.yaml", "*.yml", "*.json"],
+        "exclude_patterns": ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
+      }
+    ],
+    "git": [
+      {
+        "id": "stackguide-repo",
+        "name": "StackGuide Repository",
+        "url": "https://github.com/user/stackguide",
+        "type": "git",
+        "branch": "main",
+        "enabled": false,
+        "description": "Main StackGuide repository",
+        "auth": {
+          "type": "ssh_key",
+          "path": "~/.ssh/id_rsa"
+        }
+      }
+    ],
+    "cloud": [
+      {
+        "id": "team-confluence",
+        "name": "Team Documentation",
+        "service": "confluence",
+        "type": "cloud",
+        "enabled": false,
+        "description": "Team Confluence space",
+        "config": {
+          "base_url": "https://company.atlassian.net",
+          "space_key": "TEAM",
+          "username": "${CONFLUENCE_USERNAME}",
+          "api_token": "${CONFLUENCE_API_TOKEN}"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "default_chunk_size": 1000,
+    "default_chunk_overlap": 200,
+    "max_file_size_mb": 10,
+    "scan_interval_minutes": 60,
+    "auto_discovery": {
+      "enabled": true,
+      "git_repos": true,
+      "common_paths": [
+        "~/Development",
+        "~/Documents",
+        "~/Projects"
+      ]
+    }
+  }
+}

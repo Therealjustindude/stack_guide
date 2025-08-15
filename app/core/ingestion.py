@@ -28,6 +28,9 @@ import re
 import chromadb
 from chromadb.config import Settings
 
+# Configuration management
+from core.config import ConfigManager, SourceConfig
+
 logger = logging.getLogger(__name__)
 
 
@@ -319,18 +322,28 @@ class DocumentParser:
 class DataIngestionEngine:
     """Engine for ingesting data from various sources."""
     
-    def __init__(self, chroma_host: str = None, chroma_port: int = None):
+    def __init__(self, chroma_host: str = None, chroma_port: int = None, config_path: str = None):
         """
         Initialize the ingestion engine.
         
         Args:
             chroma_host: Chroma DB host (defaults to environment variable)
             chroma_port: Chroma DB port (defaults to environment variable)
+            config_path: Path to configuration file
         """
         self.sources = []
         self.processed_files = 0
         self.total_chunks = 0
-        self.parser = DocumentParser()
+        
+        # Initialize configuration manager
+        self.config_manager = ConfigManager(config_path)
+        settings = self.config_manager.get_settings()
+        
+        # Initialize parser with configured settings
+        self.parser = DocumentParser(
+            chunk_size=settings.default_chunk_size,
+            chunk_overlap=settings.default_chunk_overlap
+        )
         
         # Get Chroma DB connection details from environment variables
         import os
@@ -371,16 +384,31 @@ class DataIngestionEngine:
             logger.error(f"Failed to connect to Chroma DB: {e}")
             self.chroma_client = None
             self.collection = None
+        
+        # Load sources from configuration
+        self._load_sources_from_config()
+        
+    def _load_sources_from_config(self):
+        """Load enabled sources from configuration."""
+        try:
+            enabled_sources = self.config_manager.get_enabled_sources()
+            for source in enabled_sources:
+                if source.type == "local":
+                    # For local sources, add the path to our sources list
+                    self.sources.append({
+                        "path": Path(source.path),
+                        "type": source.type,
+                        "added_at": datetime.now().isoformat(),
+                        "config": source
+                    })
+                    logger.info(f"Loaded configured source: {source.name} ({source.path})")
+                else:
+                    logger.info(f"Source type {source.type} not yet implemented: {source.name}")
+            
+            logger.info(f"Loaded {len(self.sources)} sources from configuration")
             
         except Exception as e:
-            logger.error(f"Failed to connect to Chroma DB: {e}")
-            self.chroma_client = None
-            self.collection = None
-            
-        except Exception as e:
-            logger.error(f"Failed to connect to Chroma DB: {e}")
-            self.chroma_client = None
-            self.collection = None
+            logger.error(f"Error loading sources from configuration: {e}")
     
     def add_source(self, source_path: str, source_type: str = "local") -> bool:
         """

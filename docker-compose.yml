@@ -12,6 +12,8 @@ services:
       - ./app:/app
       - ./data:/data
       - ./models:/models
+      - ./config:/app/config
+      - .:/workspace
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
@@ -97,6 +99,8 @@ services:
       - ./app:/app
       - ./data:/data
       - ./models:/models
+      - ./config:/app/config
+      - .:/workspace
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
