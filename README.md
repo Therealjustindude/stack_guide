@@ -50,10 +50,24 @@ make cli
 # Then type: query "How do I set up the database?"
 ```
 
+### 🆕 **Add Your Personal Projects**
+```bash
+# Quick project addition
+make add-project
+
+# Or use CLI for full control
+make cli
+sources> add
+# Enter: ~/Projects/weather-app
+# Name: Weather Dashboard  
+# Description: Personal weather app with React
+```
+
 ## 📚 Documentation
 
 - **[Configuration Guide](docs/CONFIGURATION.md)** - Add data sources and customize settings
 - **[Quick Start: Adding Sources](docs/QUICK_START_SOURCES.md)** - 3-step guide to add your first source
+- **[Project Management Guide](docs/PROJECT_MANAGEMENT.md)** - Add and manage your personal coding projects
 - **[Enterprise Ingestion Guide](docs/ENTERPRISE_INGESTION.md)** - Smart strategies for large documentation systems
 - **[Feedback Template](docs/FEEDBACK_TEMPLATE.md)** - Template for testing feedback and bug reports
 - **[API Reference](docs/API.md)** - API endpoints and usage (coming soon)
@@ -83,10 +97,19 @@ make clean
 
 ## 📖 What's Next?
 
-- **RAG Pipeline** - Query processing and response generation
-- **Cloud Connectors** - Confluence, Notion, Google Drive integration
+### ✅ **Recently Implemented:**
+- **RAG Pipeline** - Query processing and response generation ✅
+- **Cloud Connectors** - Confluence, Notion, GitHub URL ingestion ✅
+- **Smart Ingestion** - URL-based and filtered enterprise ingestion ✅
+- **Feedback System** - Automated metrics and structured feedback collection ✅
+- **Response Quality** - Improved confidence scoring and answer generation ✅
+
+### 🚀 **Coming Soon:**
 - **Auto-Discovery** - Automatically find documentation on your machine
 - **Team Mode** - Shared knowledge bases and collaboration
+- **Advanced Filtering** - AI-powered content relevance scoring
+- **Real-time Updates** - Monitor and auto-ingest changed documents
+- **Performance Dashboard** - Visual metrics and system health monitoring
 
 ---
 
