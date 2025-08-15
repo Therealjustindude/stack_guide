@@ -10,6 +10,27 @@
 - **CLI-First** - Simple command-line interface for developers
 - **Privacy-Focused** - All processing happens locally by default
 
+## 🔒 Privacy & Security - Business-Ready Architecture
+
+### Complete Data Privacy Guarantee:
+- **100% Local Processing** - All AI inference happens on your machine
+- **Local Vector Database** - Your document embeddings never leave your computer
+- **Local AI Models** - gpt-oss/llama models run entirely locally
+- **No External AI Calls** - Zero data sent to external AI services
+
+### Cloud Integration (User-Controlled):
+- **Document Collection Only** - Pull docs from Confluence, Notion, etc.
+- **Local Processing** - All documents processed and indexed locally
+- **No Data Upload** - Cloud services only provide source documents
+- **User Consent Required** - Cloud connectors only enabled when explicitly configured
+
+### Business Benefits:
+- **Data Residency** - Everything stays in your jurisdiction
+- **Compliance Ready** - Meets strict data privacy requirements
+- **No Vendor Lock-in** - You own all your data and models
+- **Offline Capable** - Works without internet once docs are pulled
+- **Team Scalable** - Each user has their own secure local instance
+
 ## 🚀 Quick Start
 
 ```bash

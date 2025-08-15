@@ -1,261 +1,185 @@
 #!/usr/bin/env python3
 """
-StackGuide CLI - Local-first AI Knowledge Assistant
-
-Usage:
-    stackguide query "your question here"
-    stackguide interactive
-    stackguide ingest
-    stackguide status
+StackGuide CLI - Command-line interface for StackGuide.
 """
 
-import argparse
 import sys
-from pathlib import Path
+import logging
 from typing import Optional
-
-# Add the app directory to the path so we can import modules
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from core.knowledge import KnowledgeEngine
 from core.ingestion import DataIngestionEngine
-from utils.logging import get_logger
+from core.config import ConfigManager
+from core.knowledge import KnowledgeEngine
 
-logger = get_logger(__name__)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def main():
     """Main CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="StackGuide - Local-first AI Knowledge Assistant",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-    stackguide query "How do I set up my development environment?"
-    stackguide query "Where is the payment integration code?"
-    stackguide interactive
-    stackguide ingest
-    stackguide search "Docker configuration"
-    stackguide status
-    stackguide sources
-        """
-    )
-    
-    parser.add_argument(
-        "command",
-        choices=["query", "interactive", "ingest", "status", "search", "sources"],
-        help="Command to execute"
-    )
-    
-    parser.add_argument(
-        "query_text",
-        nargs="?",
-        help="Query text (required for 'query' command)"
-    )
-    
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    
-    args = parser.parse_args()
-    
-    if args.verbose:
-        logger.setLevel("DEBUG")
-    
-    try:
-        if args.command == "query":
-            if not args.query_text:
-                print("Error: Query text is required for 'query' command")
-                sys.exit(1)
-            run_query(args.query_text)
-        elif args.command == "interactive":
-            run_interactive()
-        elif args.command == "ingest":
-            run_ingestion()
-        elif args.command == "search":
-            if not args.query_text:
-                print("Error: Search query is required for 'search' command")
-                sys.exit(1)
-            run_search(args.query_text)
-        elif args.command == "status":
-            show_status()
-        elif args.command == "sources":
-            run_sources()
-    except KeyboardInterrupt:
-        print("\nOperation cancelled by user")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        if args.verbose:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
-
-
-def run_query(query_text: str):
-    """Run a single query and display results."""
-    print(f"🔍 Query: {query_text}")
-    print("=" * 50)
-    
-    # TODO: Initialize KnowledgeEngine and run query
-    # engine = KnowledgeEngine()
-    # results = engine.query(query_text)
-    # display_results(results)
-    
-    print("Query functionality coming soon!")
-    print("Make sure the StackGuide services are running with 'make dev'")
-
-
-def run_interactive():
-    """Start interactive CLI mode."""
-    print("🚀 StackGuide Interactive Mode")
-    print("Type 'quit' or 'exit' to end the session")
-    print("=" * 50)
+    print("🚀 StackGuide CLI")
+    print("Type 'help' for available commands, 'quit' to exit\n")
     
     while True:
         try:
-            query = input("\n💬 Ask a question: ").strip()
+            command = input("stackguide> ").strip().lower()
             
-            if query.lower() in ["quit", "exit", "q"]:
-                print("👋 Goodbye!")
+            if command == "quit" or command == "exit":
+                print("Goodbye! 👋")
                 break
-            
-            if not query:
-                continue
+            elif command == "help":
+                run_help()
+            elif command == "ingest":
+                run_ingestion()
+            elif command == "sources":
+                run_sources()
+            elif command == "query":
+                run_query()
+            elif command == "status":
+                run_status()
+            else:
+                print(f"Unknown command: {command}")
+                print("Type 'help' for available commands")
                 
-            run_query(query)
-            
         except KeyboardInterrupt:
-            print("\n👋 Goodbye!")
+            print("\nGoodbye! 👋")
             break
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            print(f"An error occurred: {e}")
+
+
+def run_help():
+    """Show available commands."""
+    print("\n📚 Available Commands:")
+    print("  ingest   - Ingest data from configured sources")
+    print("  sources  - View configured data sources")
+    print("  query    - Ask a question about your documentation")
+    print("  status   - Show system status and health")
+    print("  help     - Show this help message")
+    print("  quit     - Exit the CLI\n")
 
 
 def run_ingestion():
-    """Run data ingestion process."""
-    print("📚 Starting data ingestion...")
+    """Run data ingestion from configured sources."""
+    print("🔄 Starting data ingestion...")
     
     try:
-        # Initialize ingestion engine (will load sources from config)
         engine = DataIngestionEngine()
-        
-        # Check if we have configured sources
-        if not engine.sources:
-            print("⚠️  No data sources configured")
-            print("💡 Add sources to config/sources.json or use the CLI to configure them")
-            return
-        
-        print(f"📁 Found {len(engine.sources)} configured sources")
-        for source in engine.sources:
-            print(f"   - {source['config'].name if 'config' in source else 'Unknown'}: {source['path']}")
-        
-        # Run ingestion
-        print("🔄 Processing documents...")
         result = engine.ingest_all(force_reindex=True)
         
         print(f"✅ Ingestion complete!")
-        print(f"📁 Files processed: {result.files_processed}")
-        print(f"📄 Chunks created: {result.chunks_created}")
-        print(f"⏱️  Processing time: {result.processing_time:.2f}s")
+        print(f"   Files processed: {result.files_processed}")
+        print(f"   Chunks created: {result.chunks_created}")
+        print(f"   Sources processed: {len(result.sources_updated)}")
         
-        if result.errors:
-            print(f"⚠️  Errors: {len(result.errors)}")
-            for error in result.errors:
-                print(f"   - {error}")
-        
-        if result.sources_updated:
-            print(f"🔄 Sources updated: {len(result.sources_updated)}")
-            for source in result.sources_updated:
-                print(f"   - {source}")
-                
     except Exception as e:
-        print(f"❌ Error during ingestion: {e}")
-        print("Make sure the StackGuide services are running with 'make dev'")
-
-
-def run_search(query_text: str):
-    """Search ingested documents."""
-    print(f"🔍 Searching for: {query_text}")
-    print("=" * 50)
-    
-    try:
-        # Initialize ingestion engine
-        engine = DataIngestionEngine()
-        
-        # Search for relevant chunks
-        results = engine.search_chunks(query_text, n_results=5)
-        
-        if not results:
-            print("❌ No results found")
-            print("Make sure you've run 'ingest' first to index documents")
-            return
-        
-        print(f"✅ Found {len(results)} relevant chunks:")
-        print()
-        
-        for i, result in enumerate(results, 1):
-            print(f"📄 Result {i}:")
-            print(f"   File: {result['metadata']['source_file']}")
-            print(f"   Section: {result['metadata']['section']}")
-            print(f"   Content: {result['content'][:200]}...")
-            if result.get('distance'):
-                print(f"   Relevance: {1 - result['distance']:.2f}")
-            print()
-            
-    except Exception as e:
-        print(f"❌ Error during search: {e}")
-        print("Make sure the StackGuide services are running with 'make dev'")
-
-
-def show_status():
-    """Show system status."""
-    print("📊 StackGuide System Status")
-    print("=" * 30)
-    
-    # TODO: Check service health and show status
-    print("Status checking coming soon!")
-    print("Make sure the StackGuide services are running with 'make dev'")
+        logger.error(f"Ingestion failed: {e}")
+        print(f"❌ Ingestion failed: {e}")
 
 
 def run_sources():
-    """Manage data sources."""
-    print("🔧 Data Source Management")
-    print("=" * 30)
+    """Display configured data sources."""
+    print("📁 Configured Data Sources:\n")
     
     try:
-        from core.config import ConfigManager
-        
         config = ConfigManager()
-        enabled_sources = config.get_enabled_sources()
         
-        if not enabled_sources:
-            print("⚠️  No data sources configured")
-            print("💡 Add sources to config/sources.json or use the CLI to configure them")
+        if not config.sources:
+            print("No sources configured. Edit config/sources.json to add sources.")
             return
         
-        print(f"📁 Found {len(enabled_sources)} enabled sources:")
+        for source_type, source_list in config.sources.items():
+            print(f"🔸 {source_type.upper()} Sources:")
+            for source in source_list:
+                status = "✅ Enabled" if source.enabled else "❌ Disabled"
+                print(f"   {source.name} ({source.id}) - {status}")
+                if source.description:
+                    print(f"      {source.description}")
+                if hasattr(source, 'path') and source.path:
+                    print(f"      Path: {source.path}")
+                print()
+                
+    except Exception as e:
+        logger.error(f"Failed to load sources: {e}")
+        print(f"❌ Failed to load sources: {e}")
+
+
+def run_query():
+    """Run a query using the knowledge engine."""
+    print("❓ Ask a question about your documentation:")
+    question = input("Question: ").strip()
+    
+    if not question:
+        print("Please provide a question.")
+        return
+    
+    print(f"\n🔍 Searching for: '{question}'")
+    print("Please wait...\n")
+    
+    try:
+        # Initialize knowledge engine
+        knowledge_engine = KnowledgeEngine()
+        
+        # Process the query
+        response = knowledge_engine.query(question)
+        
+        # Display the answer
+        print("💡 Answer:")
+        print(response.answer)
         print()
         
-        for source in enabled_sources:
-            status = "✅ Enabled" if source.enabled else "❌ Disabled"
-            print(f"{source.name} ({source.type})")
-            print(f"   ID: {source.id}")
-            print(f"   Path: {source.path}")
-            print(f"   Description: {source.description}")
-            print(f"   Status: {status}")
-            if source.patterns:
-                print(f"   Patterns: {', '.join(source.patterns)}")
-            if source.exclude_patterns:
-                print(f"   Exclude: {', '.join(source.exclude_patterns)}")
-            print()
+        # Display sources
+        if response.sources:
+            print("📚 Sources:")
+            for i, source in enumerate(response.sources, 1):
+                print(f"  {i}. {source.source} (Score: {source.score:.2f})")
+                if source.metadata.get('file_path'):
+                    print(f"     File: {source.metadata['file_path']}")
+                print()
+            
+            print(f"Confidence: {response.confidence:.2f}")
+        else:
+            print("No sources found.")
+            
+    except Exception as e:
+        logger.error(f"Query failed: {e}")
+        print(f"❌ Query failed: {e}")
+
+
+def run_status():
+    """Show system status and health."""
+    print("📊 System Status:\n")
+    
+    try:
+        # Check knowledge engine
+        knowledge_engine = KnowledgeEngine()
+        stats = knowledge_engine.get_collection_stats()
         
-        print("💡 Use 'stackguide sources add <type> <path>' to add new sources")
-        print("💡 Edit config/sources.json to modify source configurations")
+        print("🔍 Knowledge Engine:")
+        print(f"   Status: {stats['status']}")
+        print(f"   Documents: {stats['total_documents']}")
+        print(f"   Collection: {stats['collection_name']}")
+        
+        # Check configuration
+        config = ConfigManager()
+        enabled_sources = []
+        for source_list in config.sources.values():
+            enabled_sources.extend([s for s in source_list if s.enabled])
+        
+        print(f"\n⚙️  Configuration:")
+        print(f"   Enabled sources: {len(enabled_sources)}")
+        
+        # Check data ingestion engine
+        ingestion_engine = DataIngestionEngine()
+        print(f"\n📥 Data Ingestion:")
+        print(f"   Sources configured: {len(ingestion_engine.sources)}")
+        
+        print("\n✅ All systems operational!")
         
     except Exception as e:
-        print(f"❌ Error managing sources: {e}")
-        print("Make sure the StackGuide services are running with 'make dev'")
+        logger.error(f"Status check failed: {e}")
+        print(f"❌ Status check failed: {e}")
 
 
 if __name__ == "__main__":

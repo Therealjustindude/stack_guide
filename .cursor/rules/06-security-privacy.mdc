@@ -1,9 +1,26 @@
----
-globs: *.py,*.js,*.ts,*.yaml,*.yml,*.toml,*.md
-description: Security and privacy guidelines for Stack Guide including local-first architecture and sensitive data handling
----
 
 # Security & Privacy
+
+## Business-Ready Privacy Architecture
+
+### Complete Data Privacy Guarantee
+- **100% Local Processing**: All AI inference happens on user's machine
+- **Local Vector Database**: Document embeddings never leave the computer
+- **Local AI Models**: gpt-oss/llama models run entirely locally
+- **No External AI Calls**: Zero data sent to external AI services by default
+
+### Cloud Integration (User-Controlled)
+- **Document Collection Only**: Pull docs from Confluence, Notion, etc.
+- **Local Processing**: All documents processed and indexed locally
+- **No Data Upload**: Cloud services only provide source documents
+- **User Consent Required**: Cloud connectors only enabled when explicitly configured
+
+### Business Benefits
+- **Data Residency**: Everything stays in user's jurisdiction
+- **Compliance Ready**: Meets strict data privacy requirements
+- **No Vendor Lock-in**: Users own all their data and models
+- **Offline Capable**: Works without internet once docs are pulled
+- **Team Scalable**: Each user has their own secure local instance
 
 ## Local-First Architecture
 - **gpt-oss runs locally**: No data sent to external LLM services by default
@@ -25,6 +42,13 @@ description: Security and privacy guidelines for Stack Guide including local-fir
 ## Implementation Guidelines
 - Use environment variables for configuration
 - Implement file scanning for sensitive patterns
+- Provide clear warnings about data handling
+- Support user-defined exclusion patterns
+- Log security events for monitoring
+- Ensure all privacy features are enabled by default
+- Implement clear user consent flows for cloud features
+- Provide privacy status indicators in UI/CLI
+
 - Provide clear warnings about data handling
 - Support user-defined exclusion patterns
 - Log security events for monitoring

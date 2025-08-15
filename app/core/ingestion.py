@@ -366,7 +366,7 @@ class DataIngestionEngine:
             # Get or create collection
             try:
                 self.collection = self.chroma_client.get_or_create_collection(
-                    name="stackguide_documents",
+                    name="stackguide_docs",
                     metadata={"description": "StackGuide document chunks"}
                 )
                 logger.info("Collection ready")
@@ -374,7 +374,7 @@ class DataIngestionEngine:
                 logger.error(f"Failed to create collection: {e}")
                 # Try to get existing collection
                 try:
-                    self.collection = self.chroma_client.get_collection("stackguide_documents")
+                    self.collection = self.chroma_client.get_collection("stackguide_docs")
                     logger.info("Got existing collection")
                 except Exception as e2:
                     logger.error(f"Failed to get collection: {e2}")
@@ -389,12 +389,22 @@ class DataIngestionEngine:
         self._load_sources_from_config()
         
     def _load_sources_from_config(self):
-        """Load enabled sources from configuration."""
+        """Load data sources from configuration."""
         try:
-            enabled_sources = self.config_manager.get_enabled_sources()
+            config = ConfigManager()
+            enabled_sources = []
+            
+            # Collect all enabled sources from all types
+            for source_type, source_list in config.sources.items():
+                for source in source_list:
+                    if source.enabled:
+                        enabled_sources.append(source)
+            
+            logger.info(f"Found {len(enabled_sources)} enabled sources in configuration")
+            
             for source in enabled_sources:
                 if source.type == "local":
-                    # For local sources, add the path to our sources list
+                    # Convert SourceConfig to the dictionary format expected by ingestion
                     self.sources.append({
                         "path": Path(source.path),
                         "type": source.type,
