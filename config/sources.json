@@ -2,13 +2,13 @@
   "sources": {
     "local": [
       {
-        "id": "stackguide-project",
-        "name": "StackGuide Project",
-        "path": "/app",
-        "type": "local",
+        "id": "company-documentation",
+        "name": "Company Documentation",
+        "path": "/workspace/../mock-company-docs",
+        "type": "external",
         "enabled": true,
-        "description": "Current StackGuide project files",
-        "patterns": ["*.py", "*.md", "*.txt", "*.yaml", "*.yml", "*.json"],
+        "description": "External company documentation in various formats",
+        "patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.xml", "*.ini", "*.sql", "*.csv"],
         "exclude_patterns": ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
       }
     ],
