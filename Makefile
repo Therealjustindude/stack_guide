@@ -47,17 +47,19 @@ help:
 	@echo "  clean           - Remove all containers, images, and volumes"
 	@echo ""
 	@echo "💻 CLI & Queries:"
-	@echo "  cli             - Open interactive CLI"
-	@echo "  query           - Run specific query (requires Q= parameter)"
-	@echo "  search          - Search ingested documents (requires Q= parameter)"
+@echo "  cli             - Open interactive CLI"
+@echo "  ingest-url      - Start CLI for URL ingestion (Confluence, Notion, GitHub)"
+@echo "  query           - Run specific query (requires Q= parameter)"
+@echo "  search          - Search ingested documents (requires Q= parameter)"
 	@echo ""
 	@echo "🧪 Development Tools:"
 	@echo "  test            - Run tests"
 	@echo "  lint            - Run linting"
 	@echo "  format          - Format code"
 	@echo "  setup           - Initial setup and configuration"
-	@echo "  ingest          - Ingest data from local sources"
-	@echo "  search          - Search ingested documents"
+@echo "  ingest          - Ingest data from local sources"
+@echo "  ingest-url      - Ingest specific URLs (Confluence, Notion, GitHub)"
+@echo "  search          - Search ingested documents"
 
 # Development environment with hot reloading (CPU mode by default)
 dev:
@@ -149,9 +151,8 @@ ingest:
 # Ingest specific URL
 ingest-url:
 	@echo "🔗 Ingesting specific URL into StackGuide..."
-	@read -p "Enter URL to ingest: " url; \
-	read -p "Enter source name (optional): " name; \
-	docker compose exec api python -m cli.main ingest-url "$$url" "$$name"
+	@echo "Starting CLI for URL ingestion..."
+	@docker compose exec api python -m cli.main
 
 # Quick start - full setup and launch
 stackguide:

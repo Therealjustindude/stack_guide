@@ -50,6 +50,80 @@ make cli
 # Then type: query "How do I set up the database?"
 ```
 
+## 🔗 URL Ingestion - Enterprise Documentation
+
+**Ingest specific pages from Confluence, Notion, GitHub, and other web sources without overwhelming your system.**
+
+### **Why URL Ingestion?**
+- **Targeted Content** - Only ingest the specific documentation you need
+- **No Mass Ingestion** - Avoid pulling entire Confluence workspaces
+- **Local Processing** - All content processed and stored locally
+- **Privacy First** - No data sent to external AI services
+
+### **How to Use URL Ingestion:**
+
+#### **1. Start the CLI:**
+```bash
+make cli
+# or
+docker compose exec api python3 -m cli.main
+```
+
+#### **2. Use the ingest-url command:**
+```
+stackguide> ingest-url
+```
+
+#### **3. Enter your URL and source name:**
+```
+🔗 URL Ingestion
+Enter a URL to ingest (Confluence, Notion, GitHub, Google Docs, etc.)
+URL: https://yourcompany.atlassian.net/wiki/spaces/TEAM/pages/123456789/API+Documentation
+Source name (optional): API Documentation
+
+🔄 Ingesting: https://yourcompany.atlassian.net/wiki/spaces/TEAM/pages/123456789/API+Documentation
+Please wait...
+✅ URL ingestion complete!
+   Chunks created: 8
+   Source: API Documentation
+```
+
+### **Supported Platforms:**
+
+| **Platform** | **Example URLs** | **Features** |
+|--------------|------------------|--------------|
+| **Confluence** | `https://company.atlassian.net/wiki/...` | Page content extraction, formatting preservation |
+| **Notion** | `https://company.notion.site/...` | Page content, database views |
+| **GitHub** | `https://github.com/user/repo/blob/main/README.md` | README files, documentation, code comments |
+| **Generic Web** | Any web page | HTML content extraction, text chunking |
+
+### **4. Query Your Ingested Content:**
+```
+stackguide> query "How do I configure the API authentication?"
+```
+
+### **Advanced Usage:**
+
+#### **Ingest Multiple Pages:**
+```bash
+# Ingest API documentation
+make cli
+ingest-url
+# URL: https://confluence.company.com/pages/viewpage.action?pageId=12345
+# Name: API Setup Guide
+
+# Ingest troubleshooting guide
+ingest-url
+# URL: https://confluence.company.com/pages/viewpage.action?pageId=67890
+# Name: Troubleshooting Guide
+```
+
+#### **Check What's Ingested:**
+```
+stackguide> status
+# Shows all ingested sources and document counts
+```
+
 ## 📚 Documentation
 
 - **[Configuration Guide](docs/CONFIGURATION.md)** - Add data sources and customize settings
