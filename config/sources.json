@@ -4,8 +4,8 @@
       {
         "id": "company-documentation",
         "name": "Company Documentation",
-        "path": "/workspace/../mock-company-docs",
-        "type": "external",
+        "path": "/host/mock-company-docs",
+        "type": "local",
         "enabled": true,
         "description": "External company documentation in various formats",
         "patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.xml", "*.ini", "*.sql", "*.csv"],

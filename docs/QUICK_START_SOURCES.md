@@ -1,113 +1,110 @@
-# Quick Start: Adding Data Sources
+# Quick Start: Adding Data Sources 🚀
 
-This guide shows you how to quickly add data sources to StackGuide in 3 simple steps.
+**3-step guide to add your first data source to StackGuide**
 
-## 🚀 Quick Start (3 Steps)
+## 🎯 What You'll Learn
 
-### Step 1: Edit Configuration
-Open `config/sources.json` and add your source:
+- How to add a local directory as a data source
+- How to configure file patterns and exclusions
+- How to test that your source is working
 
-```json
-{
-  "sources": {
-    "local": [
-      {
-        "id": "my-project",
-        "name": "My Project",
-        "path": "/workspace",
-        "type": "local",
-        "enabled": true,
-        "description": "My project files",
-        "patterns": ["*.py", "*.md", "*.txt"],
-        "exclude_patterns": ["__pycache__", "*.pyc", ".git"]
-      }
-    ]
-  }
-}
-```
+## 📋 Prerequisites
 
-### Step 2: Restart Services
+- StackGuide is running (`make dev`)
+- You have a directory with documentation files (`.md`, `.txt`, `.json`, etc.)
+
+## 🚀 Step 1: View Current Sources
+
+First, see what sources are already configured:
+
 ```bash
-make dev-restart
-```
-
-### Step 3: Test Ingestion
-```bash
-make ingest
-```
-
-## 📂 Common Source Types
-
-### Local Directory
-```json
-{
-  "id": "docs",
-  "name": "Documentation",
-  "path": "/workspace/docs",
-  "type": "local",
-  "enabled": true
-}
-```
-
-### Git Repository
-```json
-{
-  "id": "api-docs",
-  "name": "API Docs",
-  "url": "https://github.com/company/api-docs",
-  "type": "git",
-  "branch": "main",
-  "enabled": true
-}
-```
-
-### Confluence Space
-```json
-{
-  "id": "team-docs",
-  "name": "Team Docs",
-  "service": "confluence",
-  "type": "cloud",
-  "enabled": true,
-  "config": {
-    "base_url": "https://company.atlassian.net",
-    "space_key": "TEAM"
-  }
-}
-```
-
-## 🔧 CLI Commands
-
-### View Sources
-```bash
+# Open the CLI
 make cli
+
 # Then type: sources
 ```
 
-### Check Status
+This shows your current data sources. You should see at least one source (the company documentation example).
+
+## ⚙️ Step 2: Add Your Data Source
+
+Edit the configuration file to add your directory:
+
 ```bash
-make status
+# Edit the configuration
+vim config/sources.json
 ```
 
-### View Logs
-```bash
-make logs-api
+Add a new source to the `local` section:
+
+```json
+{
+  "id": "my-project",
+  "name": "My Project",
+  "path": "/host/my-project",
+  "type": "local",
+  "enabled": true,
+  "description": "My project documentation",
+  "patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml"],
+  "exclude_patterns": ["__pycache__", "*.pyc", ".git", "node_modules", ".env*"]
+}
 ```
 
-## ⚠️ Common Issues
+**Important**: 
+- Replace `/host/my-project` with the actual path to your directory
+- The path should be relative to your StackGuide project (e.g., if your project is at `~/Development/stack_guide`, use `/host/../my-project`)
 
-**Source not found?**
-- Use `/workspace` for current project
-- Check volume mounts in docker-compose.yml
-- Restart containers after config changes
+## 🧪 Step 3: Test Your Source
 
-**Files not processing?**
-- Verify file patterns in `patterns` array
-- Check exclusion patterns
-- Ensure source is `enabled: true`
+Restart services and test ingestion:
 
-## 📚 Next Steps
+```bash
+# Restart to apply changes
+make dev-restart
 
-- [Full Configuration Guide](CONFIGURATION.md)
-- [Connectors Guide](CONNECTORS.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
+# Test ingestion
+make ingest
+```
+
+You should see output like:
+```
+Processing source: My Project
+Files processed: 5, chunks created: 23
+```
+
+## 🔍 Verify It's Working
+
+Check that your files were ingested:
+
+```bash
+# Open CLI
+make cli
+
+# Then type: query "What documentation files do you have?"
+```
+
+## 🎉 Success!
+
+You've successfully added your first data source! StackGuide will now:
+
+- Index all matching files in your directory
+- Create searchable chunks for each file
+- Include your content in query responses
+- Automatically update when files change
+
+## 🚀 Next Steps
+
+- **Add more sources**: Repeat the process for other directories
+- **Configure Git repos**: Add remote repositories
+- **Set up cloud services**: Connect to Confluence, Notion, etc.
+- **Customize settings**: Adjust chunk sizes, file patterns, etc.
+
+## 🆘 Need Help?
+
+- **Path issues**: Check the [Configuration Guide](CONFIGURATION.md) for path examples
+- **Ingestion problems**: See the troubleshooting section in the main configuration guide
+- **More examples**: Check the [Configuration Guide](CONFIGURATION.md) for advanced examples
+
+---
+
+**Ready to add more sources?** Check out the [Configuration Guide](CONFIGURATION.md) for advanced options!

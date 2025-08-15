@@ -17,10 +17,10 @@ class SourceConfig:
     """Configuration for a single data source."""
     id: str
     name: str
-    path: str
     type: str
     enabled: bool
     description: str
+    path: str = None  # Optional for git and cloud sources
     patterns: List[str] = None
     exclude_patterns: List[str] = None
     config: Dict[str, Any] = None
@@ -47,9 +47,8 @@ class ConfigManager:
             config_path: Path to configuration file (defaults to config/sources.json)
         """
         if config_path is None:
-            # Default to config/sources.json relative to project root
-            project_root = Path(__file__).parent.parent.parent
-            config_path = project_root / "config" / "sources.json"
+            # Default to config/sources.json in the app directory
+            config_path = Path("/app/config/sources.json")
         
         self.config_path = Path(config_path)
         self.config_data = {}
@@ -132,10 +131,26 @@ class ConfigManager:
             
             for source_data in source_list:
                 try:
+                    # Handle different source types
+                    if source_type == "local":
+                        # Local sources require a path
+                        if "path" not in source_data:
+                            logger.error(f"Local source missing path: {source_data.get('id', 'unknown')}")
+                            continue
+                        path = source_data["path"]
+                    elif source_type == "git":
+                        # Git sources use URL instead of path
+                        path = source_data.get("url", "")
+                    elif source_type == "cloud":
+                        # Cloud sources don't have a path
+                        path = ""
+                    else:
+                        path = source_data.get("path", "")
+                    
                     source = SourceConfig(
                         id=source_data["id"],
                         name=source_data["name"],
-                        path=source_data["path"],
+                        path=path,
                         type=source_data["type"],
                         enabled=source_data["enabled"],
                         description=source_data.get("description", ""),
