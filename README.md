@@ -53,7 +53,16 @@ chmod +x stackguide
 source ~/.zshrc  # or source ~/.bash_profile
 ```
 
-### **3. Build and Start (First Time)**
+### **3. Configure Document Sources (Optional)**
+```bash
+# Create and customize environment configuration
+nano .env  # Set HOST_DOCS_PATH to your documents location
+
+# Create and customize sources configuration
+nano config/sources.json  # Add your document sources
+```
+
+### **4. Build and Start (First Time)**
 ```bash
 # Build containers (takes 5-10 minutes, do once)
 stackguide docker-build
@@ -62,7 +71,7 @@ stackguide docker-build
 stackguide start
 ```
 
-### **4. Daily Usage**
+### **5. Daily Usage**
 ```bash
 # Just start services (fast, containers already built)
 stackguide start
@@ -105,7 +114,7 @@ stackguide docker-build  # Rebuild everything
    - Wait for services to be ready
    - Open the interactive CLI
 
-3. **Add Your First Data Source:**
+4. **Add Your First Data Source:**
    ```bash
    # In the CLI, type:
    sources
@@ -114,11 +123,88 @@ stackguide docker-build  # Rebuild everything
    ingest-url
    ```
 
-4. **Start Asking Questions:**
+5. **Start Asking Questions:**
    ```bash
    # In the CLI, type:
    query "How do I set up the database?"
    ```
+
+## ⚙️ **Flexible Document Source Configuration**
+
+**Configure where your documents come from with environment variables and examples.**
+
+### **Environment Configuration:**
+```bash
+# Create and edit your .env file
+nano .env
+
+# Add your document source configuration
+```
+
+### **Configure Document Sources:**
+```bash
+# Default: Parent directory of the project
+HOST_DOCS_PATH=..
+
+# Custom: Specific directory
+HOST_DOCS_PATH=/Users/username/Documents/company-docs
+
+# Custom: Home directory expansion
+HOST_DOCS_PATH=~/Development
+
+# Custom: Absolute path
+HOST_DOCS_PATH=/Volumes/External/Project-Documentation
+```
+
+### **Sources Configuration:**
+```bash
+# Create and edit your sources configuration
+nano config/sources.json
+```
+
+### **Example Sources Setup:**
+```json
+{
+  "sources": {
+    "local": [
+      {
+        "id": "company-docs",
+        "name": "Company Documentation",
+        "path": "/host/company-docs",
+        "type": "local",
+        "enabled": true,
+        "patterns": ["*.md", "*.txt", "*.pdf"],
+        "exclude_patterns": [".git", "node_modules", "venv"]
+      }
+    ]
+  }
+}
+```
+
+### **How Path Mapping Works:**
+- **`HOST_DOCS_PATH`** in `.env` → Mounted to `/host` in container
+- **`/host/company-docs`** in `sources.json` → Maps to your actual folder
+- **Flexible**: Works on any computer with any directory structure
+
+### **Quick Setup Examples:**
+
+#### **For Company Documentation:**
+```bash
+# .env
+HOST_DOCS_PATH=/Users/username/Work/Company-Docs
+
+# sources.json
+"path": "/host/api-docs"  # Maps to /Users/username/Work/Company-Docs/api-docs
+```
+
+#### **For Personal Projects:**
+```bash
+# .env
+HOST_DOCS_PATH=~/Development
+
+# sources.json
+"path": "/host/my-project"  # Maps to ~/Development/my-project
+```
 
 ## 🎯 **Convenient Scripts (Recommended)**
 
@@ -266,6 +352,11 @@ stackguide> status
 - **[Enterprise Ingestion Guide](docs/ENTERPRISE_INGESTION.md)** - Smart strategies for large documentation systems
 - **[Feedback Template](docs/FEEDBACK_TEMPLATE.md)** - Template for testing feedback and bug reports
 - **[API Reference](docs/API.md)** - API endpoints and usage (coming soon)
+
+### **Configuration Files:**
+- **`.env`** - Environment variables (create this file)
+- **`config/sources.json`** - Data sources configuration (create this file)
+- **`docker-compose.dev.yml`** - Docker services configuration
 
 ## 🏗️ Architecture
 

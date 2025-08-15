@@ -15,7 +15,7 @@ services:
       - ./requirements.txt:/app/requirements.txt
       - ./config:/app/config
       - .:/workspace
-      - ..:/host
+      - ${HOST_DOCS_PATH:-..}:/host
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
@@ -113,7 +113,7 @@ services:
       - ./requirements.txt:/app/requirements.txt
       - ./config:/app/config
       - .:/workspace
-      - ..:/host
+      - ${HOST_DOCS_PATH:-..}:/host
     environment:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
