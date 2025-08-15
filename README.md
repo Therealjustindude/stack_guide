@@ -50,6 +50,51 @@ make cli
 # Then type: query "How do I set up the database?"
 ```
 
+## 🎯 **Convenient Scripts (Recommended)**
+
+**Skip the `make` commands! Use these intuitive scripts instead:**
+
+### **Install the Scripts:**
+```bash
+# Make scripts executable and add to PATH
+chmod +x install-scripts.sh
+./install-scripts.sh
+```
+
+### **Use the Scripts:**
+```bash
+# Start everything and open CLI
+stackguide start
+
+# Start with GPU support
+stackguide start-gpu
+
+# Just open CLI (starts services if needed)
+stackguide cli
+
+# Ingest URLs from Confluence, Notion, GitHub
+stackguide ingest-url
+
+# Run a quick query
+stackguide query "How do I configure the API?"
+
+# Check system status
+stackguide status
+
+# View logs
+stackguide logs
+
+# Stop services
+stackguide stop
+```
+
+### **Why Use Scripts?**
+- **Intuitive Commands** - `stackguide start` instead of `make dev`
+- **Cross-Platform** - Works on macOS, Linux, and Windows
+- **Smart Auto-Start** - Services start automatically when needed
+- **Better UX** - Colored output, progress indicators, helpful messages
+- **Available Everywhere** - Run from any directory once installed
+
 ## 🔗 URL Ingestion - Enterprise Documentation
 
 **Ingest specific pages from Confluence, Notion, GitHub, and other web sources without overwhelming your system.**
