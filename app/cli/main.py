@@ -21,7 +21,7 @@ def run_help():
     print("  ingest     - Ingest all configured data sources")
     print("  ingest-url - Ingest a specific URL (Confluence, Notion, GitHub, etc.)")
     print("  query      - Ask a question about your documentation")
-    print("  sources    - Manage data sources (add/remove projects)")
+    print("  sources    - View configured data sources")
     print("  status     - Check system status and collection stats")
     print("  help       - Show this help message")
     print("  quit       - Exit the CLI\n")
@@ -112,54 +112,14 @@ def run_ingestion():
 
 
 def run_sources():
-    """Display and manage configured data sources."""
-    print("📁 Data Source Management:\n")
-    print("Available commands:")
-    print("  list       - Show all configured sources")
-    print("  add        - Add a new project/directory")
-    print("  remove     - Remove a source")
-    print("  help       - Show this help")
-    print("  back       - Return to main menu\n")
-    
-    while True:
-        try:
-            command = input("sources> ").strip().lower()
-            
-            if command == "back" or command == "quit":
-                break
-            elif command == "help":
-                print("\nAvailable commands:")
-                print("  list       - Show all configured sources")
-                print("  add        - Add a new project/directory")
-                print("  remove     - Remove a source")
-                print("  help       - Show this help")
-                print("  back       - Return to main menu\n")
-            elif command == "list":
-                _list_sources()
-            elif command == "add":
-                _add_source()
-            elif command == "remove":
-                _remove_source()
-            else:
-                print(f"Unknown command: {command}")
-                print("Type 'help' for available commands")
-                
-        except KeyboardInterrupt:
-            break
-        except Exception as e:
-            logger.error(f"Error in sources menu: {e}")
-            print(f"An error occurred: {e}")
-
-
-def _list_sources():
     """Display configured data sources."""
-    print("\n📁 Configured Data Sources:\n")
+    print("📁 Configured Data Sources:\n")
     
     try:
         config = ConfigManager()
         
         if not config.sources:
-            print("No sources configured. Use 'add' to add your first project.")
+            print("No sources configured. Edit config/sources.json to add sources.")
             return
         
         for source_type, source_list in config.sources.items():
@@ -176,149 +136,6 @@ def _list_sources():
     except Exception as e:
         logger.error(f"Failed to load sources: {e}")
         print(f"❌ Failed to load sources: {e}")
-
-
-def _add_source():
-    """Add a new local project/directory source."""
-    print("\n➕ Add New Project/Directory\n")
-    
-    # Get project path
-    path = input("Enter project path (e.g., ~/Projects/weather-app): ").strip()
-    if not path:
-        print("❌ No path provided")
-        return
-    
-    # Expand user path
-    import os
-    expanded_path = os.path.expanduser(path)
-    
-    # Check if path exists
-    if not os.path.exists(expanded_path):
-        print(f"❌ Path does not exist: {expanded_path}")
-        return
-    
-    # Get project name
-    name = input("Enter project name (optional): ").strip()
-    if not name:
-        name = os.path.basename(expanded_path)
-    
-    # Get description
-    description = input("Enter project description (optional): ").strip()
-    
-    # Get project ID
-    project_id = input("Enter project ID (optional, will auto-generate): ").strip()
-    if not project_id:
-        project_id = name.lower().replace(" ", "-").replace("_", "-")
-    
-    print(f"\n📋 Adding project:")
-    print(f"   Name: {name}")
-    print(f"   Path: {expanded_path}")
-    print(f"   ID: {project_id}")
-    if description:
-        print(f"   Description: {description}")
-    
-    confirm = input("\nAdd this project? (y/N): ").strip().lower()
-    if confirm != 'y':
-        print("❌ Cancelled")
-        return
-    
-    try:
-        # Add to config
-        config = ConfigManager()
-        
-        # Create new source
-        new_source = {
-            "id": project_id,
-            "name": name,
-            "path": f"/host{expanded_path.replace(os.path.expanduser('~'), '')}",
-            "type": "local",
-            "enabled": True,
-            "description": description,
-            "patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.py", "*.js", "*.jsx", "*.ts", "*.tsx", "*.java", "*.go", "*.rs", "*.rb", "*.php"],
-            "exclude_patterns": ["__pycache__", "*.pyc", ".git", "node_modules", ".env*", "dist", "build", "target", "vendor"]
-        }
-        
-        # Add to local sources
-        if "local" not in config.sources:
-            config.sources["local"] = []
-        
-        config.sources["local"].append(new_source)
-        
-        # Save config
-        config.save()
-        
-        print(f"✅ Project '{name}' added successfully!")
-        print(f"   Path: {new_source['path']}")
-        print(f"   Use 'ingest' to index this project")
-        
-    except Exception as e:
-        logger.error(f"Failed to add source: {e}")
-        print(f"❌ Failed to add source: {e}")
-
-
-def _remove_source():
-    """Remove a configured source."""
-    print("\n🗑️  Remove Source\n")
-    
-    try:
-        config = ConfigManager()
-        
-        if not config.sources:
-            print("No sources configured.")
-            return
-        
-        # Show available sources
-        print("Available sources:")
-        source_count = 0
-        for source_type, source_list in config.sources.items():
-            for source in source_list:
-                source_count += 1
-                print(f"  {source_count}. {source.name} ({source.id}) - {source_type}")
-        
-        if source_count == 0:
-            print("No sources to remove.")
-            return
-        
-        # Get selection
-        try:
-            selection = int(input(f"\nEnter source number (1-{source_count}): ").strip())
-            if selection < 1 or selection > source_count:
-                print("❌ Invalid selection")
-                return
-        except ValueError:
-            print("❌ Please enter a valid number")
-            return
-        
-        # Find and remove source
-        source_count = 0
-        for source_type, source_list in list(config.sources.items()):
-            for i, source in enumerate(source_list):
-                source_count += 1
-                if source_count == selection:
-                    # Confirm removal
-                    confirm = input(f"\nRemove '{source.name}' ({source.id})? (y/N): ").strip().lower()
-                    if confirm != 'y':
-                        print("❌ Cancelled")
-                        return
-                    
-                    # Remove source
-                    source_list.pop(i)
-                    
-                    # Remove empty source types
-                    if not source_list:
-                        del config.sources[source_type]
-                    
-                    # Save config
-                    config.save()
-                    
-                    print(f"✅ Source '{source.name}' removed successfully!")
-                    return
-        
-        print("❌ Source not found")
-        
-    except Exception as e:
-        logger.error(f"Failed to remove source: {e}")
-        print(f"❌ Failed to remove source: {e}")
 
 
 def run_query():

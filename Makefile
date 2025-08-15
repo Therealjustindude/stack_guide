@@ -50,8 +50,6 @@ help:
 	@echo "  cli             - Open interactive CLI"
 	@echo "  query           - Run specific query (requires Q= parameter)"
 	@echo "  search          - Search ingested documents (requires Q= parameter)"
-	@echo "  add-project     - Add new project to knowledge base"
-	@echo "  projects        - Show project management commands"
 	@echo ""
 	@echo "🧪 Development Tools:"
 	@echo "  test            - Run tests"
@@ -97,32 +95,6 @@ logs:
 cli:
 	@echo "💻 Starting StackGuide CLI..."
 	docker compose exec api python -m cli.main
-
-# Add a new project to your knowledge base
-add-project:
-	@echo "➕ Adding new project to StackGuide..."
-	@echo "This will open the CLI to add your project."
-	@echo "Make sure StackGuide is running first with 'make dev'"
-	@echo ""
-	@read -p "Press Enter to continue..." && \
-	docker compose exec api python -m cli.main
-
-# Quick project ingestion
-ingest-project:
-	@echo "📥 Ingesting specific project..."
-	@read -p "Enter project name/ID: " project; \
-	docker compose exec api python -m cli.main ingest
-
-# Project management shortcuts
-projects:
-	@echo "📁 Managing StackGuide projects..."
-	@echo "Available commands:"
-	@echo "  make add-project    - Add new project interactively"
-	@echo "  make cli            - Open CLI for project management"
-	@echo "  make ingest         - Ingest all configured projects"
-	@echo "  make ingest-project - Ingest specific project"
-	@echo ""
-	@echo "Or use 'make cli' then type 'sources' for full management"
 
 # Query via CLI
 query:
