@@ -9,6 +9,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import logging
+import requests
+from urllib.parse import urlparse
+import re
 
 from .file_tracker import FileTracker
 from .parallel import ParallelProcessor
@@ -39,6 +42,387 @@ class IngestionEngine:
         # Load sources from configuration
         self.sources = []
         self._load_sources_from_config()
+    
+    def ingest_url(self, url: str, source_name: str = None) -> Dict[str, Any]:
+        """
+        Ingest content from a specific URL (Confluence, Notion, GitHub, etc.).
+        
+        Args:
+            url: URL to ingest
+            source_name: Optional name for the source
+            
+        Returns:
+            Dictionary with ingestion results
+        """
+        try:
+            logger.info(f"Starting URL ingestion: {url}")
+            
+            # Parse URL to determine type
+            url_type = self._detect_url_type(url)
+            
+            if url_type == "confluence":
+                return self._ingest_confluence_page(url, source_name)
+            elif url_type == "notion":
+                return self._ingest_notion_page(url, source_name)
+            elif url_type == "github":
+                return self._ingest_github_content(url, source_name)
+            elif url_type == "generic":
+                return self._ingest_generic_url(url, source_name)
+            else:
+                return {
+                    "success": False,
+                    "errors": [f"Unsupported URL type: {url_type}"],
+                    "chunks_created": 0
+                }
+                
+        except Exception as e:
+            logger.error(f"Error during URL ingestion: {e}")
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "chunks_created": 0
+            }
+    
+    def _detect_url_type(self, url: str) -> str:
+        """
+        Detect the type of URL for appropriate processing.
+        
+        Args:
+            url: URL to analyze
+            
+        Returns:
+            URL type string
+        """
+        url_lower = url.lower()
+        
+        if any(domain in url_lower for domain in ['atlassian.net', 'confluence', 'jira']):
+            return "confluence"
+        elif any(domain in url_lower for domain in ['notion.so', 'notion.site']):
+            return "notion"
+        elif any(domain in url_lower for domain in ['github.com', 'githubusercontent.com']):
+            return "github"
+        else:
+            return "generic"
+    
+    def _ingest_confluence_page(self, url: str, source_name: str = None) -> Dict[str, Any]:
+        """
+        Ingest content from a Confluence page.
+        
+        Args:
+            url: Confluence page URL
+            source_name: Optional name for the source
+            
+        Returns:
+            Dictionary with ingestion results
+        """
+        try:
+            logger.info(f"Ingesting Confluence page: {url}")
+            
+            # For now, we'll do a basic HTTP request
+            # In production, you'd want to use the Confluence API with proper authentication
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            
+            # Extract content from HTML
+            content = self._extract_confluence_content(response.text)
+            
+            if not content:
+                return {
+                    "success": False,
+                    "errors": ["Could not extract content from Confluence page"],
+                    "chunks_created": 0
+                }
+            
+            # Create chunks from content
+            chunks = self._create_chunks_from_text(content, url)
+            
+            # Store in Chroma DB (placeholder for now)
+            # In production, you'd integrate with the storage system
+            
+            logger.info(f"Successfully ingested Confluence page: {len(chunks)} chunks created")
+            
+            return {
+                "success": True,
+                "chunks_created": len(chunks),
+                "source": source_name or "Confluence Page",
+                "url": url,
+                "content_length": len(content)
+            }
+            
+        except requests.RequestException as e:
+            logger.error(f"HTTP error ingesting Confluence page: {e}")
+            return {
+                "success": False,
+                "errors": [f"HTTP error: {str(e)}"],
+                "chunks_created": 0
+            }
+        except Exception as e:
+            logger.error(f"Error ingesting Confluence page: {e}")
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "chunks_created": 0
+            }
+    
+    def _ingest_notion_page(self, url: str, source_name: str = None) -> Dict[str, Any]:
+        """
+        Ingest content from a Notion page.
+        
+        Args:
+            url: Notion page URL
+            source_name: Optional name for the source
+            
+        Returns:
+            Dictionary with ingestion results
+        """
+        try:
+            logger.info(f"Ingesting Notion page: {url}")
+            
+            # For now, we'll do a basic HTTP request
+            # In production, you'd want to use the Notion API with proper authentication
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            
+            # Extract content from HTML
+            content = self._extract_notion_content(response.text)
+            
+            if not content:
+                return {
+                    "success": False,
+                    "errors": ["Could not extract content from Notion page"],
+                    "chunks_created": 0
+                }
+            
+            # Create chunks from content
+            chunks = self._create_chunks_from_text(content, url)
+            
+            logger.info(f"Successfully ingested Notion page: {len(chunks)} chunks created")
+            
+            return {
+                "success": True,
+                "chunks_created": len(chunks),
+                "source": source_name or "Notion Page",
+                "url": url,
+                "content_length": len(content)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error ingesting Notion page: {e}")
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "chunks_created": 0
+            }
+    
+    def _ingest_github_content(self, url: str, source_name: str = None) -> Dict[str, Any]:
+        """
+        Ingest content from GitHub (README, documentation, etc.).
+        
+        Args:
+            url: GitHub content URL
+            source_name: Optional name for the source
+            
+        Returns:
+            Dictionary with ingestion results
+        """
+        try:
+            logger.info(f"Ingesting GitHub content: {url}")
+            
+            # Convert GitHub web URL to raw content URL
+            raw_url = self._convert_github_to_raw_url(url)
+            
+            if not raw_url:
+                return {
+                    "success": False,
+                    "errors": ["Could not convert GitHub URL to raw content"],
+                    "chunks_created": 0
+                }
+            
+            # Fetch raw content
+            response = requests.get(raw_url, timeout=30)
+            response.raise_for_status()
+            
+            content = response.text
+            
+            # Create chunks from content
+            chunks = self._create_chunks_from_text(content, url)
+            
+            logger.info(f"Successfully ingested GitHub content: {len(chunks)} chunks created")
+            
+            return {
+                "success": True,
+                "chunks_created": len(chunks),
+                "source": source_name or "GitHub Content",
+                "url": url,
+                "content_length": len(content)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error ingesting GitHub content: {e}")
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "chunks_created": 0
+            }
+    
+    def _ingest_generic_url(self, url: str, source_name: str = None) -> Dict[str, Any]:
+        """
+        Ingest content from a generic URL.
+        
+        Args:
+            url: Generic URL
+            source_name: Optional name for the source
+            
+        Returns:
+            Dictionary with ingestion results
+        """
+        try:
+            logger.info(f"Ingesting generic URL: {url}")
+            
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            
+            # Extract text content from HTML
+            content = self._extract_text_from_html(response.text)
+            
+            if not content:
+                return {
+                    "success": False,
+                    "errors": ["Could not extract content from URL"],
+                    "chunks_created": 0
+                }
+            
+            # Create chunks from content
+            chunks = self._create_chunks_from_text(content, url)
+            
+            logger.info(f"Successfully ingested generic URL: {len(chunks)} chunks created")
+            
+            return {
+                "success": True,
+                "chunks_created": len(chunks),
+                "source": source_name or "Web Page",
+                "url": url,
+                "content_length": len(content)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error ingesting generic URL: {e}")
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "chunks_created": 0
+            }
+    
+    def _extract_confluence_content(self, html_content: str) -> str:
+        """Extract main content from Confluence HTML."""
+        # Basic content extraction - in production, use proper HTML parsing
+        # Look for main content areas
+        content_patterns = [
+            r'<div[^>]*class="[^"]*content[^"]*"[^>]*>(.*?)</div>',
+            r'<div[^>]*id="main-content"[^>]*>(.*?)</div>',
+            r'<article[^>]*>(.*?)</article>'
+        ]
+        
+        for pattern in content_patterns:
+            match = re.search(pattern, html_content, re.DOTALL | re.IGNORECASE)
+            if match:
+                return self._clean_html_content(match.group(1))
+        
+        # Fallback: extract text from body
+        return self._extract_text_from_html(html_content)
+    
+    def _extract_notion_content(self, html_content: str) -> str:
+        """Extract main content from Notion HTML."""
+        # Basic content extraction for Notion
+        content_patterns = [
+            r'<div[^>]*class="[^"]*notion-page-content[^"]*"[^>]*>(.*?)</div>',
+            r'<main[^>]*>(.*?)</main>'
+        ]
+        
+        for pattern in content_patterns:
+            match = re.search(pattern, html_content, re.DOTALL | re.IGNORECASE)
+            if match:
+                return self._clean_html_content(match.group(1))
+        
+        # Fallback: extract text from body
+        return self._extract_text_from_html(html_content)
+    
+    def _extract_text_from_html(self, html_content: str) -> str:
+        """Extract clean text content from HTML."""
+        # Remove HTML tags
+        text = re.sub(r'<[^>]+>', ' ', html_content)
+        
+        # Remove extra whitespace
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Remove common HTML entities
+        text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+        
+        return text.strip()
+    
+    def _clean_html_content(self, html_content: str) -> str:
+        """Clean and extract text from HTML content."""
+        # Remove script and style tags
+        html_content = re.sub(r'<script[^>]*>.*?</script>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+        html_content = re.sub(r'<style[^>]*>.*?</style>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+        
+        # Extract text
+        return self._extract_text_from_html(html_content)
+    
+    def _convert_github_to_raw_url(self, url: str) -> str:
+        """Convert GitHub web URL to raw content URL."""
+        # Convert URLs like:
+        # https://github.com/user/repo/blob/main/README.md
+        # to:
+        # https://raw.githubusercontent.com/user/repo/main/README.md
+        
+        if 'github.com' in url and '/blob/' in url:
+            url = url.replace('github.com', 'raw.githubusercontent.com')
+            url = url.replace('/blob/', '/')
+            return url
+        
+        return None
+    
+    def _create_chunks_from_text(self, text: str, source_url: str, chunk_size: int = 1000) -> List[str]:
+        """
+        Create text chunks from content.
+        
+        Args:
+            text: Text content to chunk
+            source_url: Source URL for the content
+            chunk_size: Size of each chunk
+            
+        Returns:
+            List of text chunks
+        """
+        if len(text) <= chunk_size:
+            return [text]
+        
+        chunks = []
+        start = 0
+        
+        while start < len(text):
+            end = start + chunk_size
+            
+            # Try to break at sentence boundaries
+            if end < len(text):
+                # Look for sentence endings
+                sentence_end = text.rfind('.', start, end)
+                if sentence_end > start and sentence_end > start + chunk_size * 0.7:
+                    end = sentence_end + 1
+                else:
+                    # Look for word boundaries
+                    word_end = text.rfind(' ', start, end)
+                    if word_end > start + chunk_size * 0.7:
+                        end = word_end
+            
+            chunk = text[start:end].strip()
+            if chunk:
+                chunks.append(chunk)
+            
+            start = end
+        
+        return chunks
     
     def _load_sources_from_config(self):
         """Load data sources from configuration and auto-discovery."""

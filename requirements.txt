@@ -14,6 +14,9 @@ numpy>=2.0.0,<3.0.0
 python-multipart>=0.0.6,<1.0.0
 python-dotenv>=1.0.0,<2.0.0
 
+# HTTP requests for URL ingestion
+requests>=2.31.0,<3.0.0
+
 # Document parsing
 markdown>=3.5.1,<4.0.0
 beautifulsoup4>=4.12.2,<5.0.0
