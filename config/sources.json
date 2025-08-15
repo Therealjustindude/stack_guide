@@ -53,9 +53,7 @@
       "enabled": true,
       "git_repos": true,
       "common_paths": [
-        "~/Development",
-        "~/Documents",
-        "~/Projects"
+        "~/Development"
       ]
     }
   }
