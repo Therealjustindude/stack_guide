@@ -1,141 +1,46 @@
-
+version: '3.8'
 
 services:
-  # FastAPI Backend (Development, CPU mode)
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./app:/app
-      - ./data:/data
-      - ./models:/models
-      - ./requirements.txt:/app/requirements.txt
-      - ./config:/app/config
-      - .:/workspace
-      - ${HOST_DOCS_PATH:-..}:/host
+  postgres:
+    image: postgres:15-alpine
+    container_name: stackguide-postgres
     environment:
-      - CHROMA_HOST=chroma
-      - CHROMA_PORT=8000
-      - LLM_HOST=llm-cpu
-      - LLM_PORT=8001
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=development
+      POSTGRES_DB: stackguide
+      POSTGRES_USER: stackguide
+      POSTGRES_PASSWORD: stackguide_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stackguide"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  go-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stackguide-go-backend
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=stackguide
+      - DB_USER=stackguide
+      - DB_PASSWORD=stackguide_dev
+      - DB_SSL_MODE=disable
     depends_on:
-      - chroma
-      - llm-cpu
-    networks:
-      - stackguide
-    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app"]
-    profiles:
-      - cpu
-
-  # Chroma Vector Database
-  chroma:
-    image: chromadb/chroma:latest
-    ports:
-      - "8002:8000"
+      postgres:
+        condition: service_healthy
     volumes:
-      - ./data/chroma:/chroma/chroma
-    environment:
-      - CHROMA_SERVER_HOST=0.0.0.0
-      - CHROMA_SERVER_HTTP_PORT=8000
-      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
-      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=/chroma/chroma/.chroma/chroma_authn.htpasswd
-      - CHROMA_SERVER_AUTHN_CREDENTIALS_PROVIDER=chromadb.auth.providers.HtpasswdFileServerAuthProvider
-      - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.providers.HtpasswdFileServerAuthProvider
-    networks:
-      - stackguide
-
-  # vLLM Service for gpt-oss (Development, GPU-accelerated)
-  vllm:
-    build:
-      context: .
-      dockerfile: Dockerfile.vllm
-    ports:
-      - "8001:8000"
-    volumes:
-      - ./models:/models
-      - ./data:/data
-      - ./docker:/app/docker
-    environment:
-      - MODEL_NAME=gpt-oss-20b
-      - MAX_MODEL_LEN=8192
-      - GPU_MEMORY_UTILIZATION=0.9
-      - ENVIRONMENT=development
-      - ENABLE_GPU=true
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - stackguide
-    profiles:
-      - gpu
-
-  # CPU-friendly LLM Service (Development, default)
-  llm-cpu:
-    build:
-      context: .
-      dockerfile: Dockerfile.llm-cpu
-    ports:
-      - "8001:8000"
-    volumes:
-      - ./models:/models
-      - ./data:/data
-      - ./docker:/app/docker
-    environment:
-      - MODEL_NAME=llama2-7b-chat
-      - MAX_MODEL_LEN=4096
-      - ENVIRONMENT=development
-      - ENABLE_GPU=false
-    networks:
-      - stackguide
-    profiles:
-      - cpu
-
-  # FastAPI Backend (Development, GPU mode)
-  api-gpu:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./app:/app
-      - ./data:/data
-      - ./models:/models
-      - ./requirements.txt:/app/requirements.txt
-      - ./config:/app/config
-      - .:/workspace
-      - ${HOST_DOCS_PATH:-..}:/host
-    environment:
-      - CHROMA_HOST=chroma
-      - CHROMA_PORT=8000
-      - LLM_HOST=vllm
-      - LLM_PORT=8001
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=development
-    depends_on:
-      - chroma
-      - vllm
-    networks:
-      - stackguide
-    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app"]
-    profiles:
-      - gpu
-
-
-
-networks:
-  stackguide:
-    driver: bridge
+      - ./backend:/app
+      - /app/go.sum
+      - /app/go.mod
+    command: go run main.go
 
 volumes:
-  chroma_data:
-    driver: local
+  postgres_data:
