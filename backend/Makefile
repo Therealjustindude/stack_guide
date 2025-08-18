@@ -1,4 +1,4 @@
-.PHONY: run build test clean
+.PHONY: run build test clean test-coverage test-verbose
 
 # Run the Go backend
 run:
@@ -10,13 +10,25 @@ build:
 
 # Run tests
 test:
-	go test ./...
+	go test
+
+test-verbose:
+	go test -v
+
+test-coverage:
+	go test -cover
+
+test-coverage-html:
+	go test -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
 
 # Clean build artifacts
 clean:
 	go clean
 	rm -f stackguide-backend
-	rm -rf uploads
+	rm -f coverage.out
+	rm -f coverage.html
+	rm -rf test_uploads
 
 # Install dependencies
 deps:

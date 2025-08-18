@@ -1,408 +1,159 @@
-# StackGuide 🚀
+# Stack Guide - Local-first AI Knowledge Assistant
 
-**Local-first, AI-powered knowledge assistant** that provides instant answers about your codebases, architecture, and workflows.
+A modern, modular file upload and management system built with React, Go, and shadcn/ui.
 
-## ✨ Features
+## 🚀 Quick Start (Local Development)
 
-- **Instant Answers** - Ask questions about your code and get accurate responses with citations
-- **Local-First** - Runs completely offline with open-source AI models
-- **Smart Ingestion** - Automatically indexes local files, Git repos, and cloud services
-- **CLI-First** - Simple command-line interface for developers
-- **Privacy-Focused** - All processing happens locally by default
+### Prerequisites
+- **Node.js** 18+ and npm
+- **Go** 1.21+
+- **Git**
 
-## 🔒 Privacy & Security - Business-Ready Architecture
-
-### Complete Data Privacy Guarantee:
-- **100% Local Processing** - All AI inference happens on your machine
-- **Local Vector Database** - Your document embeddings never leave your computer
-- **Local AI Models** - gpt-oss/llama models run entirely locally
-- **No External AI Calls** - Zero data sent to external AI services
-
-### Cloud Integration (User-Controlled):
-- **Document Collection Only** - Pull docs from Confluence, Notion, etc.
-- **Local Processing** - All documents processed and indexed locally
-- **No Data Upload** - Cloud services only provide source documents
-- **User Consent Required** - Cloud connectors only enabled when explicitly configured
-
-### Business Benefits:
-- **Data Residency** - Everything stays in your jurisdiction
-- **Compliance Ready** - Meets strict data privacy requirements
-- **No Vendor Lock-in** - You own all your data and models
-- **Offline Capable** - Works without internet once docs are pulled
-- **Team Scalable** - Each user has their own secure local instance
-
-## 🚀 Quick Start
-
-### **1. Clone and Setup**
+### 1. Clone and Setup
 ```bash
-# Clone the repository
-git clone <your-repo>
+git clone <your-repo-url>
 cd stack_guide
-
-# Make scripts executable
-chmod +x install-scripts.sh
-chmod +x stackguide
+git checkout feature/restructure-to-go-react-architecture
 ```
 
-### **2. Install Scripts (One Time)**
+### 2. Start the Go Backend
 ```bash
-# Install scripts to your PATH for easy access
-./install-scripts.sh
-
-# Restart your terminal (or source your shell config)
-source ~/.zshrc  # or source ~/.bash_profile
+cd backend
+go run main.go
 ```
+✅ Backend will start on http://localhost:8081
 
-### **3. Configure Document Sources (Optional)**
+### 3. Start the React Frontend (New Terminal)
 ```bash
-# Create and customize environment configuration
-nano .env  # Set HOST_DOCS_PATH to your documents location
-
-# Copy and customize sources configuration
-cp config/sources.json.template config/sources.json
-nano config/sources.json  # Add your document sources
+cd frontend
+npm install
+npm run dev
 ```
+✅ Frontend will start on http://localhost:5173
 
-### **4. Build and Start (First Time)**
-```bash
-# Build containers (takes 5-10 minutes, do once)
-stackguide docker-build
-
-# Start services and open CLI
-stackguide start
-```
-
-### **5. Daily Usage**
-```bash
-# Just start services (fast, containers already built)
-stackguide start
-
-# Or open CLI directly (services start automatically if needed)
-stackguide cli
-```
-
-### **What Each Step Does:**
-
-- **`./install-scripts.sh`** - Copies scripts to `~/.local/bin` and adds to PATH
-- **`stackguide docker-build`** - Builds Docker images (slow, one-time setup)
-- **`stackguide start`** - Starts containers and opens CLI (fast, daily use)
-- **`stackguide cli`** - Opens CLI, auto-starts services if needed
-
-### **Troubleshooting:**
-```bash
-# If scripts aren't found after installation:
-source ~/.zshrc  # or source ~/.bash_profile
-
-# If containers fail to start:
-stackguide logs          # Check what went wrong
-stackguide docker-build  # Rebuild if needed
-
-# If you want to start fresh:
-stackguide clean         # Remove all containers and images
-stackguide docker-build  # Rebuild everything
-```
-
-### **First Time Setup Experience:**
-
-1. **`stackguide docker-build`** - This will take 5-10 minutes as it downloads and builds:
-   - Python dependencies
-   - Chroma DB
-   - Local LLM models
-   - All service containers
-
-2. **`stackguide start`** - This will:
-   - Start all services (API, Chroma DB, LLM)
-   - Wait for services to be ready
-   - Open the interactive CLI
-
-4. **Add Your First Data Source:**
-   ```bash
-   # In the CLI, type:
-   sources
-   
-   # Then add a local directory or use URL ingestion:
-   ingest-url
-   ```
-
-5. **Start Asking Questions:**
-   ```bash
-   # In the CLI, type:
-   query "How do I set up the database?"
-   ```
-
-## ⚙️ **Flexible Document Source Configuration**
-
-**Configure where your documents come from with environment variables and examples.**
-
-### **Environment Configuration:**
-```bash
-# Create and edit your .env file
-nano .env
-
-# Add your document source configuration
-```
-
-### **Configure Document Sources:**
-```bash
-# Default: Parent directory of the project
-HOST_DOCS_PATH=..
-
-# Custom: Specific directory
-HOST_DOCS_PATH=/Users/username/Documents/company-docs
-
-# Custom: Home directory expansion
-HOST_DOCS_PATH=~/Development
-
-# Custom: Absolute path
-HOST_DOCS_PATH=/Volumes/External/Project-Documentation
-```
-
-### **Sources Configuration:**
-```bash
-# Copy the template and customize it
-cp config/sources.json.template config/sources.json
-
-# Edit to add your document sources
-nano config/sources.json
-```
-
-### **Example Sources Setup:**
-```json
-{
-  "sources": {
-    "local": [
-      {
-        "id": "company-docs",
-        "name": "Company Documentation",
-        "path": "/host/company-docs",
-        "type": "local",
-        "enabled": true,
-        "patterns": ["*.md", "*.txt", "*.pdf"],
-        "exclude_patterns": [".git", "node_modules", "venv"]
-      }
-    ]
-  }
-}
-```
-
-### **How Path Mapping Works:**
-- **`HOST_DOCS_PATH`** in `.env` → Mounted to `/host` in container
-- **`/host/company-docs`** in `sources.json` → Maps to your actual folder
-- **Flexible**: Works on any computer with any directory structure
-
-### **Quick Setup Examples:**
-
-#### **For Company Documentation:**
-```bash
-# .env
-HOST_DOCS_PATH=/Users/username/Work/Company-Docs
-
-# sources.json
-"path": "/host/api-docs"  # Maps to /Users/username/Work/Company-Docs/api-docs
-```
-
-#### **For Personal Projects:**
-```bash
-# .env
-HOST_DOCS_PATH=~/Development
-
-# sources.json
-"path": "/host/my-project"  # Maps to ~/Development/my-project
-```
-
-## 🎯 **Convenient Scripts (Recommended)**
-
-**Skip the `make` commands! Use these intuitive scripts instead:**
-
-### **Install the Scripts:**
-```bash
-# Make scripts executable and add to PATH
-chmod +x install-scripts.sh
-./install-scripts.sh
-```
-
-### **Use the Scripts:**
-```bash
-# Start everything and open CLI
-stackguide start
-
-# Start with GPU support
-stackguide start-gpu
-
-# Build containers without starting (useful for first-time setup)
-stackguide docker-build
-
-# Build GPU containers without starting
-stackguide docker-build-gpu
-
-# Just open CLI (starts services if needed)
-stackguide cli
-
-# Ingest URLs from Confluence, Notion, GitHub
-stackguide ingest-url
-
-# Run a quick query
-stackguide query "How do I configure the API?"
-
-# Check system status
-stackguide status
-
-# View logs
-stackguide logs
-
-# Stop services
-stackguide stop
-```
-
-### **Build vs Start:**
-- **`stackguide docker-build`** - Builds containers (takes time, do once)
-- **`stackguide start`** - Starts existing containers (fast, do daily)
-- **`stackguide start`** will auto-build if containers don't exist
-
-### **Why Use Scripts?**
-- **Intuitive Commands** - `stackguide start` instead of `make dev`
-- **Cross-Platform** - Works on macOS, Linux, and Windows
-- **Smart Auto-Start** - Services start automatically when needed
-- **Better UX** - Colored output, progress indicators, helpful messages
-- **Available Everywhere** - Run from any directory once installed
-
-### **Alternative: Make Commands**
-If you prefer the traditional `make` approach:
-```bash
-make dev          # Start development environment
-make cli          # Open interactive CLI
-make ingest-url   # Start CLI for URL ingestion
-make status       # Check system status
-```
-
-## 🔗 URL Ingestion - Enterprise Documentation
-
-**Ingest specific pages from Confluence, Notion, GitHub, and other web sources without overwhelming your system.**
-
-### **Why URL Ingestion?**
-- **Targeted Content** - Only ingest the specific documentation you need
-- **No Mass Ingestion** - Avoid pulling entire Confluence workspaces
-- **Local Processing** - All content processed and stored locally
-- **Privacy First** - No data sent to external AI services
-
-### **How to Use URL Ingestion:**
-
-#### **1. Start the CLI:**
-```bash
-make cli
-# or
-docker compose exec api python3 -m cli.main
-```
-
-#### **2. Use the ingest-url command:**
-```
-stackguide> ingest-url
-```
-
-#### **3. Enter your URL and source name:**
-```
-🔗 URL Ingestion
-Enter a URL to ingest (Confluence, Notion, GitHub, Google Docs, etc.)
-URL: https://yourcompany.atlassian.net/wiki/spaces/TEAM/pages/123456789/API+Documentation
-Source name (optional): API Documentation
-
-🔄 Ingesting: https://yourcompany.atlassian.net/wiki/spaces/TEAM/pages/123456789/API+Documentation
-Please wait...
-✅ URL ingestion complete!
-   Chunks created: 8
-   Source: API Documentation
-```
-
-### **Supported Platforms:**
-
-| **Platform** | **Example URLs** | **Features** |
-|--------------|------------------|--------------|
-| **Confluence** | `https://company.atlassian.net/wiki/...` | Page content extraction, formatting preservation |
-| **Notion** | `https://company.notion.site/...` | Page content, database views |
-| **GitHub** | `https://github.com/user/repo/blob/main/README.md` | README files, documentation, code comments |
-| **Generic Web** | Any web page | HTML content extraction, text chunking |
-
-### **4. Query Your Ingested Content:**
-```
-stackguide> query "How do I configure the API authentication?"
-```
-
-### **Advanced Usage:**
-
-#### **Ingest Multiple Pages:**
-```bash
-# Ingest API documentation
-make cli
-ingest-url
-# URL: https://confluence.company.com/pages/viewpage.action?pageId=12345
-# Name: API Setup Guide
-
-# Ingest troubleshooting guide
-ingest-url
-# URL: https://confluence.company.com/pages/viewpage.action?pageId=67890
-# Name: Troubleshooting Guide
-```
-
-#### **Check What's Ingested:**
-```
-stackguide> status
-# Shows all ingested sources and document counts
-```
-
-## 📚 Documentation
-
-- **[Configuration Guide](docs/CONFIGURATION.md)** - Add data sources and customize settings
-- **[Quick Start: Adding Sources](docs/QUICK_START_SOURCES.md)** - 3-step guide to add your first source
-- **[Enterprise Ingestion Guide](docs/ENTERPRISE_INGESTION.md)** - Smart strategies for large documentation systems
-- **[Feedback Template](docs/FEEDBACK_TEMPLATE.md)** - Template for testing feedback and bug reports
-- **[API Reference](docs/API.md)** - API endpoints and usage (coming soon)
-
-### **Configuration Files:**
-- **`.env`** - Environment variables (create this file)
-- **`config/sources.json.template`** - Data sources configuration template
-- **`docker-compose.dev.yml`** - Docker services configuration
-
-**Note:** Both `.env` and `config/sources.json` are gitignored, so users can customize them without worrying about committing personal configuration.
+### 4. Open Your Browser
+Navigate to http://localhost:5173 to see the file upload interface!
 
 ## 🏗️ Architecture
 
-- **Backend**: FastAPI + Python 3.11+
-- **AI Model**: gpt-oss-20b (local GPU) or llama2-7b-chat (CPU)
-- **Vector DB**: Chroma (local file-backed)
-- **Containerization**: Docker & Docker Compose
-
-## 🔧 Development
-
-```bash
-# Start development environment
-make dev
-
-# Check service health
-make status
-
-# Rebuild containers
-make build
-
-# Clean everything
-make clean
+```
+┌─────────────────┐    ┌─────────────────┐
+│  React Frontend │    │   Go Backend    │
+│   (Port 5173)   │◄──►│   (Port 8081)   │
+│     ✅ Ready    │    │     ✅ Ready    │
+└─────────────────┘    └─────────────────┘
 ```
 
-## 📖 What's Next?
+### Frontend (React + TypeScript + Vite)
+- **Components**: Modular, focused components (FileUpload, FileList, StatusDisplay)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State**: React hooks with clean separation of concerns
 
-### ✅ **Recently Implemented:**
-- **RAG Pipeline** - Query processing and response generation ✅
-- **Cloud Connectors** - Confluence, Notion, GitHub URL ingestion ✅
-- **Smart Ingestion** - URL-based and filtered enterprise ingestion ✅
-- **Feedback System** - Automated metrics and structured feedback collection ✅
-- **Response Quality** - Improved confidence scoring and answer generation ✅
+### Backend (Go + Gin)
+- **Framework**: Gin web framework
+- **Endpoints**: Health check, file upload, file listing
+- **Storage**: Local file system with uploads directory
 
-### 🚀 **Coming Soon:**
-- **Auto-Discovery** - Automatically find documentation on your machine
-- **Team Mode** - Shared knowledge bases and collaboration
-- **Advanced Filtering** - AI-powered content relevance scoring
-- **Real-time Updates** - Monitor and auto-ingest changed documents
-- **Performance Dashboard** - Visual metrics and system health monitoring
+## 📁 Project Structure
+
+```
+stack_guide/
+├── frontend/                 # React application
+│   ├── src/
+│   │   ├── components/      # Modular UI components
+│   │   ├── services/        # API communication layer
+│   │   └── App.tsx         # Main application component
+│   └── package.json
+├── backend/                  # Go server
+│   ├── main.go             # Server implementation
+│   ├── Makefile            # Go build commands
+│   └── uploads/            # File storage directory
+└── README.md               # This file
+```
+
+## 🧪 Testing the System
+
+### 1. Health Check
+```bash
+curl http://localhost:8081/health
+```
+
+### 2. List Files
+```bash
+curl http://localhost:8081/files
+```
+
+### 3. Upload a File
+```bash
+curl -X POST -F "file=@test.txt" http://localhost:8081/upload
+```
+
+### 4. Web Interface
+- Open http://localhost:5173
+- Upload files through the UI
+- See real-time file listings
+- Test error handling with invalid files
+
+## 🔧 Development Commands
+
+### Frontend
+```bash
+cd frontend
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+```
+
+### Backend
+```bash
+cd backend
+go run main.go       # Run development server
+go build             # Build binary
+./stackguide-backend # Run built binary
+```
+
+## 🎯 Features
+
+- ✅ **File Upload**: Drag & drop or click to upload
+- ✅ **File Validation**: Size limits (10MB) and type checking
+- ✅ **Real-time Updates**: File list refreshes automatically
+- ✅ **Error Handling**: Clear error messages and validation
+- ✅ **Responsive Design**: Works on desktop and mobile
+- ✅ **Modular Architecture**: Easy to maintain and extend
+
+## 🚨 Troubleshooting
+
+### Backend Won't Start
+- Check if port 8081 is available: `lsof -i :8081`
+- Ensure Go is installed: `go version`
+- Check Go modules: `go mod tidy`
+
+### Frontend Won't Start
+- Check if port 5173 is available: `lsof -i :5173`
+- Ensure Node.js is installed: `node --version`
+- Reinstall dependencies: `rm -rf node_modules && npm install`
+
+### File Upload Issues
+- Check backend is running: `curl http://localhost:8081/health`
+- Verify file size is under 10MB
+- Check file extension is supported
+
+## 🔮 Next Steps
+
+This is **Spike 4** of the restructure project. Future improvements:
+- File deletion and management
+- User authentication
+- File search and filtering
+- AI integration for document analysis
+- Containerization for deployment
+
+## 📝 Development Notes
+
+- **Spike 1**: ✅ React frontend setup
+- **Spike 2**: ✅ Go backend setup  
+- **Spike 3**: ✅ Frontend-backend integration
+- **Spike 4**: 🔄 Polish & documentation (current)
 
 ---
 
-**Questions?** Check the [Configuration Guide](docs/CONFIGURATION.md) or open an issue.
+**Happy coding! 🎉**
