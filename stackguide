@@ -232,7 +232,7 @@ stop_services() {
 # Function to restart services
 restart_services() {
     echo -e "${YELLOW}🔄 Restarting StackGuide services...${NC}"
-    stop_services
+    clean_up
     sleep 2
     start_services
 }
